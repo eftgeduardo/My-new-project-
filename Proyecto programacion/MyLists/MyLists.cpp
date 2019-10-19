@@ -51,9 +51,7 @@ void List::display()
 {
 	auto* node = head;
 
-	std::cout << std::left << std::setw(5) << "ID" << std::left << std::setw(15) << "producto" << std::left << std::setw(5)
-		<< "PC" << std::left << std::setw(5) << "PV" << std::left << std::setw(15) << "Existencias"
-		<< std::left << std::setw(20) << "Nivel de reorden" << std::endl << std::endl;
+
 	for (int i = 0; i < count; i++) {
 		node->display(std::cout);
 		//std::cout << *(Product*)node;
@@ -75,6 +73,8 @@ void List::SaveData()
 
 std::ostream& operator<<(std::ostream& os, Product& pd)
 {
+
+
 	std::cout << std::left << std::setw(5) << pd.id << std::left << std::setw(15) << pd.product << std::left << std::setw(5)
 		<< pd.pc << std::left << std::setw(5) << pd.pv << std::left << std::setw(15) << pd.existencia
 		<< std::left << std::setw(20) << pd.nr << std::endl;
@@ -84,9 +84,23 @@ std::ostream& operator<<(std::ostream& os, Product& pd)
 }
 std::ostream& operator<<(std::ostream& os, Account& acc)
 {
-	os << acc.account << (acc.isadmin ? "Verdadero" : "Falso") << std::endl;
+
+	os << std::left << std::setw(15) << acc.account << std::left << std::setw(10) << (acc.isadmin ? "Si" : "No") << std::endl;
+
 	return os;
 }
+
+void PrintInventoryTags() {
+	std::cout << std::left << std::setw(5) << "ID" << std::left << std::setw(15) << "producto" << std::left << std::setw(5)
+		<< "PC" << std::left << std::setw(5) << "PV" << std::left << std::setw(15) << "Existencias"
+		<< std::left << std::setw(20) << "Nivel de reorden" << std::endl << std::endl;
+}
+
+void PrintAccountTags()
+{
+	std::cout << std::left << std::setw(15) << "cuenta " << std::left << std::setw(10) << "administrador" << std::endl << std::endl;
+}
+
 
 bool findProduct(List list, std::string ProductSearched)
 {
@@ -113,9 +127,7 @@ void DisplayProduct(List list, std::string ProductSearched)
 
 	for (int position = 0; position < list.count; position++) {
 		if (((Product*)pd)->product == ProductSearched) {
-			std::cout << std::left << std::setw(5) << "ID" << std::left << std::setw(15) << "producto" << std::left << std::setw(5)
-				<< "PC" << std::left << std::setw(5) << "PV" << std::left << std::setw(15) << "Existencias"
-				<< std::left << std::setw(20) << "Nivel de reorden" << std::endl << std::endl;
+			PrintInventoryTags();
 			std::cout << *(Product*)pd;
 			return;
 		}
@@ -187,7 +199,7 @@ void EraseToRewrite(std::string Filename)
 
 
 }
-void LoadData(std::string filename,List& list)
+void LoadProductData(std::string filename,List& list)
 {	
 	int pointer = 0;//position PTR where in archive I am
 	std::ifstream file(filename, std::ifstream::binary);
@@ -200,7 +212,7 @@ void LoadData(std::string filename,List& list)
 		int temp_existencias = 0;
 		int temp_pc = 0;
 		int temp_nr = 0;
-		std::string tempS_product = "";
+		std::string temp_product = "";
 		char ch;
 		char SizeString;
 
@@ -208,7 +220,7 @@ void LoadData(std::string filename,List& list)
 		file.read(&SizeString, sizeof(SizeString));
 		for (char i = 0; i < SizeString; i++) {
 			file.read(&ch, sizeof(char));
-			tempS_product.push_back(ch);
+			temp_product.push_back(ch);
 		}
 		file.read(reinterpret_cast<char*>(&temp_id), sizeof(int));//id
 		file.read(reinterpret_cast<char*>(&temp_pv), sizeof(int));//pv
@@ -217,7 +229,7 @@ void LoadData(std::string filename,List& list)
 		file.read(reinterpret_cast<char*>(&temp_pc), sizeof(int));
 		file.read(reinterpret_cast<char*>(&temp_nr), sizeof(int));
 
-		list.add(new Product(temp_id, tempS_product, temp_pc, temp_pv, temp_existencias, temp_nr));
+		list.add(new Product(temp_id, temp_product, temp_pc, temp_pv, temp_existencias, temp_nr));
 		pointer = file.tellg();//position in file
 
 	}
@@ -228,6 +240,50 @@ void LoadData(std::string filename,List& list)
 
 }
 
+
+void LoadAccountData(std::string filename, List& list)
+{
+	int pointer = 0;//position PTR where in archive I am
+	std::ifstream file(filename, std::ifstream::binary);
+	file.seekg(0, file.end);
+	int length = file.tellg();//lenght of archive
+
+	while (pointer != length) {
+		bool temp_isadmin;
+		char SizeString_accounts;
+		char SizeString_password;
+		std::string temp_account="";
+		std::string temp_password="";
+		char ch;
+		file.seekg(pointer);
+		file.read(&SizeString_accounts, sizeof(SizeString_accounts));
+		pointer = file.tellg();//position in file
+		//aqui el read
+		for (char i = 0; i < SizeString_accounts; i++) {
+			file.read(&ch, sizeof(char));
+			temp_account.push_back(ch);
+		}
+		pointer = file.tellg();//position in file
+		file.read(&SizeString_password, sizeof(SizeString_password));
+		//aqui el read
+		pointer = file.tellg();//position in file
+		for (char i = 0; i < SizeString_password; i++) {
+			file.read(&ch, sizeof(char));
+			temp_password.push_back(ch);
+		}
+		//todo lo demas
+		pointer = file.tellg();//position in file
+		file.read(reinterpret_cast<char*>(&temp_isadmin), sizeof(char));
+		list.add(new Account(temp_account, temp_password, temp_isadmin));
+
+		pointer = file.tellg();//position in file
+	}
+
+
+
+	file.close();
+
+}
 
 Product::Product(int id, std::string product, int pv, int pc, int existencias, int nr)
 {
@@ -286,18 +342,29 @@ void Account::display(std::ostream& os)
 }
 void Account::SaveData(IntrusiveNode& head)
 {
-
 	auto data = *this;
+	if (data.next == head.next) {
+		EraseToRewrite(Accountfilename);
+
+	}
 	//auto nombre = ;
 	//char nombre[5] = "hola";
-	char SizeString = char(data.account.size());
+	char SizeString_accounts = char(data.account.size());
+	char SizeString_password = char(data.password.size());
 	std::ofstream file(Accountfilename, std::ios_base::app | std::ofstream::binary);
 	//"res\\Product.bin"
 	//string send
-	file.write(&SizeString, sizeof(SizeString));
+	file.write(&SizeString_accounts, sizeof(SizeString_accounts));
 	file.write(data.account.data(), data.account.size());
-	//todo lo demas
 
+	file.write(&SizeString_password, sizeof(SizeString_password));
+	file.write(data.password.data(), data.password.size());
+
+	//todo lo demas
+	file.write(reinterpret_cast<char*>(&data.isadmin), sizeof(char));
 	//Data.write(reinterpret_cast<char*>(&SizeString), sizeof( SizeString));
+
 	file.close();
 }
+
+

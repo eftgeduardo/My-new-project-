@@ -5,7 +5,7 @@
 #include <iomanip> 
 
 const std::string Productfilename = "res\\Product.bin";
-const std::string Accountfilename = "Account.bin";
+const std::string Accountfilename = "res\\Account.bin";
 struct IntrusiveNode {
 	IntrusiveNode* next;
 	virtual void display(std::ostream& os) = 0;
@@ -53,6 +53,8 @@ struct List {
 
 };
 
+void PrintInventoryTags();
+void PrintAccountTags();
 bool findProduct(List list, std::string ProductSearched);
 void DisplayProduct(List list, std::string ProductSearched);
 void DeepCopyProduct(Product* pd, Product* to_copy);
@@ -62,8 +64,8 @@ void AlphabeticalDisplayProducts(List list);
 
 
 void EraseToRewrite(std::string Filename);
-void LoadData(std::string filename, List& list);
-
+void LoadProductData(std::string filename, List& list);
+void LoadAccountData(std::string filename, List& list);
 //void displayProducts();
 
 //2 save data, tipo Product y tipo Cuentas
