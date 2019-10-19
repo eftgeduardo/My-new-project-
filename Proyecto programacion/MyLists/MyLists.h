@@ -4,7 +4,7 @@
 #include <fstream>
 #include <iomanip> 
 
-const std::string Productfilename = "Product.bin";
+const std::string Productfilename = "res\\Product.bin";
 const std::string Accountfilename = "Account.bin";
 struct IntrusiveNode {
 	IntrusiveNode* next;

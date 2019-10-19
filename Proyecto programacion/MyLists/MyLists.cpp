@@ -67,7 +67,6 @@ void List::SaveData()
 
 	for (int i = 0; i < count; i++) {
 		node->SaveData(*head);
-		//std::cout << *(Product*)node;
 		node = node->next;
 	}
 
@@ -191,34 +190,40 @@ void EraseToRewrite(std::string Filename)
 void LoadData(std::string filename,List& list)
 {	
 	int pointer = 0;//position PTR where in archive I am
-
-	//ListData node;
-	int temp_id = 0;
-	int temp_pv=0;
-	int temp_existencias = 0;
-	int temp_pc = 0;
-	int temp_nr = 0;
-	std::string tempS_product = "";
-	char ch;
-	char SizeString;
 	std::ifstream file(filename, std::ifstream::binary);
-	//file.seekg(0, file.end);
-	//int length = file.tellg();//lenght of archive
+	file.seekg(0, file.end);
+	int length = file.tellg();//lenght of archive
 
-	file.seekg(pointer);
-	file.read(&SizeString, sizeof(SizeString));
-	for (char i = 0; i < SizeString; i++) {
-		file.read(&ch, sizeof(char));
-		tempS_product.push_back(ch);
+	while (pointer != length) {
+		int temp_id = 0;
+		int temp_pv = 0;
+		int temp_existencias = 0;
+		int temp_pc = 0;
+		int temp_nr = 0;
+		std::string tempS_product = "";
+		char ch;
+		char SizeString;
+
+		file.seekg(pointer);
+		file.read(&SizeString, sizeof(SizeString));
+		for (char i = 0; i < SizeString; i++) {
+			file.read(&ch, sizeof(char));
+			tempS_product.push_back(ch);
+		}
+		file.read(reinterpret_cast<char*>(&temp_id), sizeof(int));//id
+		file.read(reinterpret_cast<char*>(&temp_pv), sizeof(int));//pv
+
+		file.read(reinterpret_cast<char*>(&temp_existencias), sizeof(int));
+		file.read(reinterpret_cast<char*>(&temp_pc), sizeof(int));
+		file.read(reinterpret_cast<char*>(&temp_nr), sizeof(int));
+
+		list.add(new Product(temp_id, tempS_product, temp_pc, temp_pv, temp_existencias, temp_nr));
+		pointer = file.tellg();//position in file
+
 	}
-	file.read(reinterpret_cast<char*>(&temp_id), sizeof(int));//id
-	file.read(reinterpret_cast<char*>(&temp_pv), sizeof(int));//pv
 
-	file.read(reinterpret_cast<char*>(&temp_existencias), sizeof(int));
-	file.read(reinterpret_cast<char*>(&temp_pc), sizeof(int));
-	file.read(reinterpret_cast<char*>(&temp_nr), sizeof(int));
 
-	list.add(new Product(temp_id, tempS_product, temp_pc,temp_pv,temp_existencias,temp_nr));
+
 	file.close();
 
 }
@@ -229,7 +234,7 @@ Product::Product(int id, std::string product, int pv, int pc, int existencias, i
 	this->id = id;
 	this->product = product;
 	this->pv = pv;
-	this->existencia = existencia;
+	this->existencia = existencias;
 	this->nr = nr;
 	this->pc = pc;
 }
@@ -243,7 +248,7 @@ void Product::SaveData(IntrusiveNode& head)
 	auto data = *this;
 
 	if (data.next == head.next) {
-		EraseToRewrite("Product.bin"s);
+		EraseToRewrite(Productfilename);
 
 	}
 	//auto nombre = ;`

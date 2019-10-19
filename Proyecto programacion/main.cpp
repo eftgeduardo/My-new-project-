@@ -1,13 +1,13 @@
-#include "MyLists.h"
-void StartingProducts(List& list);
+#include "MyLists/MyLists.h"
+void Starting_Products_Accounts(List& list);
 
 int main() {
 
 	List list;
 	List Accounts;
-	StartingProducts(list);
+	Starting_Products_Accounts(list);
 	//LoadData(Productfilename,list);
-
+	
 
 	//list.add(new Product(6, "a"s, 6));
 	//list.add(new Product(6, "c"s, 6));
@@ -28,7 +28,7 @@ int main() {
 
 
 }
-void StartingProducts(List& list) {
+void Starting_Products_Accounts(List& list) {
 	using namespace std::string_literals;
 	list.add(new Product(2,"leche"s,10,11,23,5));
 	list.add(new Product(4, "pan"s, 10, 20, 20, 2));
