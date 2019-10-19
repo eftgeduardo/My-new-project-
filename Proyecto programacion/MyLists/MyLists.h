@@ -38,7 +38,6 @@ struct Account : IntrusiveNode {
 std::ostream& operator<<(std::ostream& os, Product& pd);
 std::ostream& operator<<(std::ostream& os, Account& acc);
 
-
 struct List {
 	//using Allocator = IntrusiveNode *();
 	//Allocator* allocator;
@@ -55,7 +54,7 @@ struct List {
 
 void PrintInventoryTags();
 void PrintAccountTags();
-bool findProduct(List list, std::string ProductSearched);
+int findProduct(List list, std::string ProductSearched);
 void DisplayProduct(List list, std::string ProductSearched);
 void DeepCopyProduct(Product* pd, Product* to_copy);
 void SwapListElements(IntrusiveNode* ActualNode);

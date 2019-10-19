@@ -1,13 +1,116 @@
 #include "MyLists/MyLists.h"
+#include <conio.h>
+#include <sstream>
+#include <stdlib.h>
+
+#define MaxSizeOfOption 8
+
 void Starting_Products_Accounts(List& list, List& account);
 
-int main() {
+int PrintMenus();
+int MenuPrincipal() { return 0; };
 
+int ValidacionAdministrador();
+int ValidacionVentas();
+int Admin() { return 0; };
+void MenuOptions();
+int AltasProductos();
+int BajasProductos();
+int MostrarInventario();
+int RegresoMenu() { return 0; };
+int ModificacionesPC();
+int ModificacionesPV();
+int ModificacionesExistencia();
+int ModificacionesID();
+
+
+
+
+std::string GetString();
+int GetNumber();
+
+typedef int(*FunctionPointer)();
+FunctionPointer functionPointers[] = {
+	NULL,
+	ValidacionAdministrador,
+	ValidacionVentas,
+	NULL,
+	NULL,
+	AltasProductos,
+	BajasProductos,
+	NULL,
+	NULL,//modificaciones
+	MostrarInventario,
+	NULL,
+	NULL,//11
+	RegresoMenu,//pprincipal
+	ModificacionesPC,
+	ModificacionesPV,
+	ModificacionesExistencia,//15
+	ModificacionesID,
+	RegresoMenu//administracion
+
+};
+
+
+int state = 0;
+
+std::string AccountAdmin = "admin";
+std::string password = "hola";
+
+
+int Automata[][MaxSizeOfOption] = {
+	{1,2,-1,-2},//menu principal
+	{0,3,-2},//verificador Admin
+	{0,4,-2},//verificador 
+	{5,6,7,8,9,10,11,12}, //Administrador------------
+	{0,-2},
+	{3,-2},
+	{3,-2},
+	{3,-2},
+	{13,14,15,16,17,-2},//8
+	{3,-2},
+	{3,-2},
+	{3,-2},//11
+	{0,-2},//12
+	{8,-2},
+	{8,-2},
+	{8,-2},
+	{8,-2},//16
+	{3,-2}//17
+};
+char ScreenOptions[][30]{
+	{"Menu Principal"},//0
+	{"Admin"},//1 verificadores
+	{"Vendedor"},//2 verificadores
+	{"Menu Admin"},//3 
+	{"Menu ventas"},//4
+	{"altas"},//5
+	{"bajas"},//6
+	{"consultas"},//7
+	{"Modificaciones"},//8
+	{"Mostrar Inventario"},//9
+	{"Administracion de cuentas"},//10
+	{"corte general caja"},//11
+	{"Regresar al menu anterior"},//12
+	{"Precio de compra"}, //13 Modificaciones
+	{"Precio de venta"},//14
+	{"Existencias"},//15
+	{"Nivel de reorden"},//16
+	{"Regresar al menu anterior"}//17
+
+
+};
+
+
+List product;
+List account;
+int main() {
+	/*
 	List product;
 	List account;
 	//Starting_Products_Accounts(product,account);
-	LoadProductData(Productfilename,product);
-	LoadAccountData(Accountfilename, account);
+
 
 
 	//products
@@ -19,6 +122,257 @@ int main() {
 	//accounts
 	account.display();
 	account.SaveData();
+	*/
+	LoadProductData(Productfilename, product);
+	LoadAccountData(Accountfilename, account);
+	MenuOptions();
+	return 0;
+
+}
+
+
+
+void MenuOptions() {
+	int Size;
+	char CharacterInput;
+	int Option;
+	while (state != -1) {
+
+
+		if (functionPointers[state] == NULL) {
+			Size = PrintMenus();
+
+			CharacterInput = _getch();
+			Option = CharacterInput - '0';
+		}
+		else {
+			Option = functionPointers[state]();
+		}
+
+		//Option = getchar();
+		state = Automata[state][Option];
+		system("cls");
+	};
+	return;
+}
+int PrintMenus() {
+	std::cout << std::string(3, '-') << ScreenOptions[state] << std::string(3, '-') << std::endl;
+	int i;
+	for (i = 0; i < MaxSizeOfOption; i++) {
+
+		if (Automata[state][i] == -2) break;
+		if (Automata[state][i] == -1) {
+			std::cout << i << ". salir juego" << std::endl;
+		}
+		else {
+			std::cout << i << ". " << ScreenOptions[Automata[state][i]] << std::endl;
+		}
+	}
+	return i;//returns size of option
+}
+int ValidacionAdministrador() {
+	std::string acc;
+	std::string passw;
+	std::string DataString = "";
+	char ch;
+	//Account = "admin"
+	//std::cin.ignore();
+
+	//std::getline(std::cin, passw);
+	while (true) {
+
+		std::cout << std::string(3, '-') << ScreenOptions[state] << std::string(3, '-') << std::endl;
+		std::cout << "ingrese cuenta: ";
+
+		//std::cin >> acc;
+		ch = _getch();
+		while (ch != 13) {//character 13 is enter
+			if (ch == '*') {
+				return 0;
+			}
+
+			acc.push_back(ch);
+			std::cout << ch;
+			ch = _getch();
+
+		}
+		std::cout << std::endl;
+
+		std::cout << "ingrese contrasena: ";
+		ch = _getch();
+		while (ch != 13) {//character 13 is enter
+			if (ch == '*') {
+				return 0;
+			}
+			passw.push_back(ch);
+			std::cout << '*';
+			ch = _getch();
+
+		}
+
+
+		if (passw == password && acc == AccountAdmin) {
+			std::cout << "es correcto";
+			return 1;
+		}
+		else {
+			std::cout << "incorrecto";
+		}
+		system("cls");
+		acc = "";
+		passw = "";
+
+
+
+	}
+
+
+
+}
+int ValidacionVentas() {
+	return 0;
+}
+
+
+
+
+int MostrarInventario() {
+	PrintInventoryTags();
+	product.display();
+	while (_getch() != '*') {
+	}
+	return 0;
+
+
+}
+int AltasProductos() {//get string
+	std::string temp_product;
+	int temp_id = 0;
+	int temp_pv = 0;
+	int temp_existencias = 0;
+	int temp_pc = 0;
+	int temp_nr = 0;
+
+
+
+	int temp;
+	PrintInventoryTags();
+	product.display();
+	while (true) {
+		std::cout << std::endl;
+		std::cout << "Escribe tu ID" << std::endl;
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		temp = GetNumber();
+		if (temp == -1)
+			return 0;
+		temp_id = temp;
+
+		//std::cin >> altas.ID;
+		std::cout << "Escribe tu producto" << std::endl;
+		std::cin >> temp_product;
+		std::cout << "Escribe tu PC" << std::endl;
+
+		temp = GetNumber();
+		if (temp == -1)
+			return 0;
+		temp_pc = temp;
+
+		std::cout << "Escribe tu PV" << std::endl;
+
+		temp = GetNumber();
+		if (temp == -1)
+			return 0;
+		temp_pv = temp;
+
+		std::cout << "Escribe tu existencias" << std::endl;
+		temp = GetNumber();
+		if (temp == -1)
+			return 0;
+		temp_existencias = temp;
+		std::cout << "Escribe nivel de reorden" << std::endl;
+		temp = GetNumber();
+		if (temp == -1)
+			return 0;
+		temp_nr = temp;
+
+
+		//condiciones
+		product.add(new Product(temp_id, temp_product, temp_pc, temp_pv, temp_existencias, temp_nr));
+		//eftg::createnode(altas.ID, altas.producto, altas.PC, altas.PV, altas.existencias, ListProducts);
+		PrintInventoryTags();
+		product.display();
+		
+		//eftg::display(ListProducts);
+
+
+	}
+	
+
+
+
+
+}
+int BajasProductos() {
+
+	std::string product_to_search;
+	int position;
+	while (true) {
+		PrintInventoryTags();
+		product.display();
+
+		std::cout << "Escribe el nombre del producto a eliminar" << std::endl;
+		std::cin >> product_to_search;//get string
+		if (product_to_search == "*") {
+			return 0;
+		}
+		
+		position = findProduct(product, product_to_search);
+		if (position == -1) {
+			std::cout << "producto no existente" << std::endl;
+		}
+		else {
+			product.remove(position);
+		}
+
+		//DeleteNode()
+
+
+
+
+	}
+
+
+}
+
+
+int ModificacionesPC() {return 0;};
+int ModificacionesPV() { return 0; };
+int ModificacionesExistencia() { return 0; };
+int ModificacionesID() { return 0; };
+
+
+
+
+
+
+
+/*------------Extra----------------*/
+int GetNumber() {
+	std::string input = "";
+	int Number;
+	while (true) {
+		//std::cout << "Please enter a valid number: ";
+		std::getline(std::cin, input);
+		if (input == "*")
+			return -1;
+		// This code converts from string to number safely.
+		std::stringstream myStream(input);
+		if (myStream >> Number)
+			return Number;
+		std::cout << "Invalid number, please try again" << std::endl;
+	}
+
+
 
 }
 void Starting_Products_Accounts(List& product,List& account) {

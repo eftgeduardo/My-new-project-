@@ -102,7 +102,7 @@ void PrintAccountTags()
 }
 
 
-bool findProduct(List list, std::string ProductSearched)
+int findProduct(List list, std::string ProductSearched)
 {
 	//list.count
 	IntrusiveNode* pd = new Product();
@@ -110,11 +110,11 @@ bool findProduct(List list, std::string ProductSearched)
 
 	for (int position = 0; position < list.count; position++) {
 		if (((Product*)pd)->product == ProductSearched)
-			return true;
+			return position;
 		pd = pd->next;
 
 	}
-	return false;
+	return -1;
 
 
 }
