@@ -179,7 +179,32 @@ void EraseToRewrite(std::string Filename)
 
 
 }
+void LoadData(std::string filename,List& list)
+{	
+	int pointer = 0;//position PTR where in archive I am
 
+	//ListData node;
+	int temp_id = 0;
+	int temp_pv=0;
+	std::string tempS_product = "";
+	char ch;
+	char SizeString;
+	std::ifstream file(filename, std::ifstream::binary);
+	//file.seekg(0, file.end);
+	//int length = file.tellg();//lenght of archive
+
+	file.seekg(pointer);
+	file.read(&SizeString, sizeof(SizeString));
+	for (char i = 0; i < SizeString; i++) {
+		file.read(&ch, sizeof(char));
+		tempS_product.push_back(ch);
+	}
+	file.read(reinterpret_cast<char*>(&temp_id), sizeof(int));//id
+	file.read(reinterpret_cast<char*>(&temp_pv), sizeof(int));//pv
+	list.add(new Product(temp_id, tempS_product, temp_pv));
+	file.close();
+
+}
 
 
 Product::Product(int id, std::string product, int pv)
@@ -212,10 +237,11 @@ void Product::SaveData(IntrusiveNode& head)
 
 	file.write(data.product.data(), data.product.size());
 	//todo lo demas
-	file.write(reinterpret_cast<char*>(&data.existencia), sizeof(data.existencia));
 	file.write(reinterpret_cast<char*>(&data.id), sizeof(data.id));
-	file.write(reinterpret_cast<char*>(&data.pc), sizeof(data.pc));
 	file.write(reinterpret_cast<char*>(&data.pv), sizeof(data.pv));
+	file.write(reinterpret_cast<char*>(&data.existencia), sizeof(data.existencia));
+	file.write(reinterpret_cast<char*>(&data.pc), sizeof(data.pc));
+
 	//Data.write(reinterpret_cast<char*>(&SizeString), sizeof( SizeString));
 	file.close();
 
@@ -233,7 +259,6 @@ void Account::display(std::ostream& os)
 {
 	os << *this;
 }
-
 void Account::SaveData(IntrusiveNode& head)
 {
 

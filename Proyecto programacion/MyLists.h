@@ -59,7 +59,8 @@ void AlphabeticalDisplayProducts(List list);
 
 
 void EraseToRewrite(std::string Filename);
-void LoadData(std::string filename);
+void LoadData(std::string filename, List& list);
+
 //void displayProducts();
 
 //2 save data, tipo Product y tipo Cuentas
