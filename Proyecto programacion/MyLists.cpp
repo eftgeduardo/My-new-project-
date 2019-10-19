@@ -51,7 +51,9 @@ void List::display()
 {
 	auto* node = head;
 
-
+	std::cout << std::left << std::setw(5) << "ID" << std::left << std::setw(15) << "producto" << std::left << std::setw(5)
+		<< "PC" << std::left << std::setw(5) << "PV" << std::left << std::setw(15) << "Existencias"
+		<< std::left << std::setw(20) << "Nivel de reorden" << std::endl << std::endl;
 	for (int i = 0; i < count; i++) {
 		node->display(std::cout);
 		//std::cout << *(Product*)node;
@@ -74,7 +76,10 @@ void List::SaveData()
 
 std::ostream& operator<<(std::ostream& os, Product& pd)
 {
-	os << pd.id << pd.product << pd.pv << std::endl;
+	std::cout << std::left << std::setw(5) << pd.id << std::left << std::setw(15) << pd.product << std::left << std::setw(5)
+		<< pd.pc << std::left << std::setw(5) << pd.pv << std::left << std::setw(15) << pd.existencia
+		<< std::left << std::setw(20) << pd.nr << std::endl;
+
 	return os;
 	// TODO: insert return statement here
 }
@@ -100,14 +105,18 @@ bool findProduct(List list, std::string ProductSearched)
 
 
 }
-
 void DisplayProduct(List list, std::string ProductSearched)
 {
 	IntrusiveNode* pd = new Product();
 	pd = list.head;
 
+	
+
 	for (int position = 0; position < list.count; position++) {
 		if (((Product*)pd)->product == ProductSearched) {
+			std::cout << std::left << std::setw(5) << "ID" << std::left << std::setw(15) << "producto" << std::left << std::setw(5)
+				<< "PC" << std::left << std::setw(5) << "PV" << std::left << std::setw(15) << "Existencias"
+				<< std::left << std::setw(20) << "Nivel de reorden" << std::endl << std::endl;
 			std::cout << *(Product*)pd;
 			return;
 		}
@@ -115,7 +124,7 @@ void DisplayProduct(List list, std::string ProductSearched)
 		pd = pd->next;
 
 	}
-	std::cout << "no existe producto";
+	std::cout << "no existe producto"<<std::endl;
 }
 void DeepCopyProduct(Product* pd, Product* to_copy)
 {
@@ -186,6 +195,9 @@ void LoadData(std::string filename,List& list)
 	//ListData node;
 	int temp_id = 0;
 	int temp_pv=0;
+	int temp_existencias = 0;
+	int temp_pc = 0;
+	int temp_nr = 0;
 	std::string tempS_product = "";
 	char ch;
 	char SizeString;
@@ -201,18 +213,25 @@ void LoadData(std::string filename,List& list)
 	}
 	file.read(reinterpret_cast<char*>(&temp_id), sizeof(int));//id
 	file.read(reinterpret_cast<char*>(&temp_pv), sizeof(int));//pv
-	list.add(new Product(temp_id, tempS_product, temp_pv));
+
+	file.read(reinterpret_cast<char*>(&temp_existencias), sizeof(int));
+	file.read(reinterpret_cast<char*>(&temp_pc), sizeof(int));
+	file.read(reinterpret_cast<char*>(&temp_nr), sizeof(int));
+
+	list.add(new Product(temp_id, tempS_product, temp_pc,temp_pv,temp_existencias,temp_nr));
 	file.close();
 
 }
 
 
-Product::Product(int id, std::string product, int pv)
+Product::Product(int id, std::string product, int pv, int pc, int existencias, int nr)
 {
 	this->id = id;
 	this->product = product;
 	this->pv = pv;
-
+	this->existencia = existencia;
+	this->nr = nr;
+	this->pc = pc;
 }
 void Product::display(std::ostream& os)
 {
@@ -229,7 +248,7 @@ void Product::SaveData(IntrusiveNode& head)
 	}
 	//auto nombre = ;`
 	char SizeString = char(data.product.size());
-	std::ofstream file("Product.bin", std::ios_base::app | std::ofstream::binary);
+	std::ofstream file(Productfilename, std::ios_base::app | std::ofstream::binary);
 	//"res\\Product.bin"
 	//string send
 
@@ -241,6 +260,7 @@ void Product::SaveData(IntrusiveNode& head)
 	file.write(reinterpret_cast<char*>(&data.pv), sizeof(data.pv));
 	file.write(reinterpret_cast<char*>(&data.existencia), sizeof(data.existencia));
 	file.write(reinterpret_cast<char*>(&data.pc), sizeof(data.pc));
+	file.write(reinterpret_cast<char*>(&data.nr), sizeof(data.nr));
 
 	//Data.write(reinterpret_cast<char*>(&SizeString), sizeof( SizeString));
 	file.close();
@@ -266,7 +286,7 @@ void Account::SaveData(IntrusiveNode& head)
 	//auto nombre = ;
 	//char nombre[5] = "hola";
 	char SizeString = char(data.account.size());
-	std::ofstream file("Product.bin", std::ios_base::app | std::ofstream::binary);
+	std::ofstream file(Accountfilename, std::ios_base::app | std::ofstream::binary);
 	//"res\\Product.bin"
 	//string send
 	file.write(&SizeString, sizeof(SizeString));

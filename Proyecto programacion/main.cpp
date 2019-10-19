@@ -1,13 +1,14 @@
 #include "MyLists.h"
-std::string Productfilename = "Product.bin";
+void StartingProducts(List& list);
+
 int main() {
-	using namespace std::string_literals;
+
 	List list;
 	List Accounts;
+	StartingProducts(list);
+	//LoadData(Productfilename,list);
 
-	LoadData(Productfilename,list);
 
-	//list.add(new Product(10, "hola"s, 5));
 	//list.add(new Product(6, "a"s, 6));
 	//list.add(new Product(6, "c"s, 6));
 	//list.display();
@@ -25,6 +26,16 @@ int main() {
 	//NewProduct.next;
 
 
+
+}
+void StartingProducts(List& list) {
+	using namespace std::string_literals;
+	list.add(new Product(2,"leche"s,10,11,23,5));
+	list.add(new Product(4, "pan"s, 10, 20, 20, 2));
+	list.add(new Product(1, "agua"s, 10, 11, 12, 8));
+	list.add(new Product(3, "huevos"s, 10, 15, 20, 5));
+	list.add(new Product(5, "refresco"s, 10, 11, 10, 3));
+	
 
 }
 

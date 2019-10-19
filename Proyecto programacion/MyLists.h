@@ -2,7 +2,10 @@
 
 #include <iostream>
 #include <fstream>
+#include <iomanip> 
 
+const std::string Productfilename = "Product.bin";
+const std::string Accountfilename = "Account.bin";
 struct IntrusiveNode {
 	IntrusiveNode* next;
 	virtual void display(std::ostream& os) = 0;
@@ -17,7 +20,7 @@ struct Product : IntrusiveNode {
 	int existencia = 0;
 	int nr = 0;
 	Product() = default;
-	Product(int id, std::string product, int pv);
+	Product(int id, std::string product, int pc,int pv,int existencias,int nr);
 	void display(std::ostream& os) override;
 	void SaveData(IntrusiveNode& head);
 	//friend std::ostream& operator<<(std::ostream& os,Product pd);
