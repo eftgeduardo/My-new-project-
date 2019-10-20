@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #define MaxSizeOfOption 8
+using namespace std::string_literals;
 
 void Starting_Products_Accounts(List& list, List& account);
 
@@ -16,13 +17,20 @@ int Admin() { return 0; };
 void MenuOptions();
 int AltasProductos();
 int BajasProductos();
-int MostrarInventario();
-int RegresoMenu() { return 0; };
+int consultas();
 int ModificacionesPC();
 int ModificacionesPV();
 int ModificacionesExistencia();
 int ModificacionesID();
+int MostrarInventario();
+int RegresoMenu() { return 0; };
 
+
+int AltasCuentas();
+int BajasCuentas() { return 0; };
+int ConsultasCuentas() { return 0; };
+int ModificacionesCuentas() { return 0; };
+int MostrarCuentas();
 
 
 
@@ -38,18 +46,23 @@ FunctionPointer functionPointers[] = {
 	NULL,
 	AltasProductos,
 	BajasProductos,
-	NULL,
-	NULL,//modificaciones
+	consultas,//consultas
+	NULL,//8 modificaciones
 	MostrarInventario,
-	NULL,
-	NULL,//11
-	RegresoMenu,//pprincipal
+	NULL,//10 administrar cuentas
+	NULL,//11 corte de caja (si tiene funcion)
+	RegresoMenu,//principal
 	ModificacionesPC,
 	ModificacionesPV,
 	ModificacionesExistencia,//15
 	ModificacionesID,
-	RegresoMenu//administracion
-
+	RegresoMenu,//17administracion
+	AltasCuentas,
+	BajasCuentas,
+	ConsultasCuentas,
+	ModificacionesCuentas,
+	MostrarCuentas,
+	RegresoMenu
 };
 
 
@@ -68,16 +81,23 @@ int Automata[][MaxSizeOfOption] = {
 	{3,-2},
 	{3,-2},
 	{3,-2},
-	{13,14,15,16,17,-2},//8
+	{13,14,15,16,17,-2},//8 modificaciones
 	{3,-2},
-	{3,-2},
+	{18,19,20,21,22,23,-2},//10 cuentas
 	{3,-2},//11
 	{0,-2},//12
 	{8,-2},
 	{8,-2},
 	{8,-2},
 	{8,-2},//16
-	{3,-2}//17
+	{3,-2},//17 regreso menu anterior 
+	{10,-2},//18 cuentas
+	{10,-2},//19
+	{10,-2},//20
+	{10,-2},//21
+	{10,-2},//22
+	{3,-2}//23 regreso menu anterior 
+
 };
 char ScreenOptions[][30]{
 	{"Menu Principal"},//0
@@ -90,14 +110,24 @@ char ScreenOptions[][30]{
 	{"consultas"},//7
 	{"Modificaciones"},//8
 	{"Mostrar Inventario"},//9
-	{"Administracion de cuentas"},//10
+	{"Administracion de cuentas"},//10cuentas
 	{"corte general caja"},//11
 	{"Regresar al menu anterior"},//12
 	{"Precio de compra"}, //13 Modificaciones
 	{"Precio de venta"},//14
 	{"Existencias"},//15
 	{"Nivel de reorden"},//16
-	{"Regresar al menu anterior"}//17
+	{"Regresar al menu anterior"},//17
+	{"Altas"},//18 CUENTAS
+	{"Bajas"},//19
+	{"Consultas"},//20
+	{"modificaciones"},//21
+	{"Mostrar cuentas de usuarios"},//22
+	{"Regresar al menu anterior"}//23
+
+
+	
+
 
 
 };
@@ -139,19 +169,26 @@ void MenuOptions() {
 	while (state != -1) {
 
 
-		if (functionPointers[state] == NULL) {
+		if (functionPointers[state] == nullptr) {
 			Size = PrintMenus();
 
 			CharacterInput = _getch();
 			Option = CharacterInput - '0';
+			
+			
 		}
 		else {
 			Option = functionPointers[state]();
 		}
 
-		//Option = getchar();
-		state = Automata[state][Option];
+		if (Option <= 9 && Option >= 0)
+		{
+			state = Automata[state][Option];
+			
+		}
 		system("cls");
+		//Option = getchar();
+		
 	};
 	return;
 }
@@ -177,11 +214,11 @@ int ValidacionAdministrador() {
 	char ch;
 	//Account = "admin"
 	//std::cin.ignore();
-
+	std::cout << std::string(3, '-') << ScreenOptions[state] << std::string(3, '-') << std::endl;
 	//std::getline(std::cin, passw);
 	while (true) {
-
-		std::cout << std::string(3, '-') << ScreenOptions[state] << std::string(3, '-') << std::endl;
+		int position;
+		
 		std::cout << "ingrese cuenta: ";
 
 		//std::cin >> acc;
@@ -209,16 +246,18 @@ int ValidacionAdministrador() {
 			ch = _getch();
 
 		}
-
-
-		if (passw == password && acc == AccountAdmin) {
-			std::cout << "es correcto";
-			return 1;
+		position=findAccount(account, acc);
+		if (position >= 0) {
+			if (passw == ((Account*)account.get(position))->password && acc == ((Account*)account.get(position))->account&& ((Account*)account.get(position))->isadmin) {
+				return 1;
+			}
 		}
-		else {
-			std::cout << "incorrecto";
-		}
+		
+		
+		
 		system("cls");
+		std::cout <<"cuenta o password incorrecto. Intente de nuevo" << std::endl << std::endl;
+		std::cout << std::string(3, '-') << ScreenOptions[state] << std::string(3, '-') << std::endl;
 		acc = "";
 		passw = "";
 
@@ -235,8 +274,8 @@ int ValidacionVentas() {
 
 
 
-
-int MostrarInventario() {
+//administracion
+int MostrarInventario() {//falta mejorar
 	PrintInventoryTags();
 	product.display();
 	while (_getch() != '*') {
@@ -245,8 +284,14 @@ int MostrarInventario() {
 
 
 }
-int AltasProductos() {//get string
-	std::string temp_product;
+void PrintAltasTag() {
+	std::cout << std::string(3, '-') << "Altas" << std::string(3, '-') << std::endl;
+	PrintInventoryTags();
+	product.display();
+
+}
+int AltasProductos() {//comporbar que el ID sea diferente
+	std::string temp_product= "";
 	int temp_id = 0;
 	int temp_pv = 0;
 	int temp_existencias = 0;
@@ -254,28 +299,49 @@ int AltasProductos() {//get string
 	int temp_nr = 0;
 
 
-
+	
 	int temp;
-	PrintInventoryTags();
-	product.display();
+	
 	while (true) {
-		std::cout << std::endl;
+
+		/*
+			std::cout << std::left << std::setw(5) << "ID" << std::left << std::setw(15) << "producto" << std::left << std::setw(5)
+		<< "PC" << std::left << std::setw(5) << "PV" << std::left << std::setw(15) << "Existencias"
+		<< std::left << std::setw(20) << "Nivel de reorden" << std::endl << std::endl;
+		*/
+		//---------------------------------------------------------
+		PrintAltasTag();
 		std::cout << "Escribe tu ID" << std::endl;
-		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 		temp = GetNumber();
 		if (temp == -1)
 			return 0;
 		temp_id = temp;
-
-		//std::cin >> altas.ID;
+		system("cls");
+		//---------------------------------------------------------
+		PrintAltasTag();
+		std::cout << std::left << std::setw(5) << temp_id <<std::endl << std::endl;
 		std::cout << "Escribe tu producto" << std::endl;
 		std::cin >> temp_product;
-		std::cout << "Escribe tu PC" << std::endl;
+		if (temp_product == ("*"s)) {
+			return 0;
+		}
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		system("cls");
 
+		//---------------------------------------------------------
+		PrintAltasTag();
+		std::cout << std::left << std::setw(5) << temp_id << std::left << std::setw(15) << temp_product
+			<< std::endl << std::endl;
+		std::cout << "Escribe tu PC" << std::endl;
 		temp = GetNumber();
 		if (temp == -1)
 			return 0;
 		temp_pc = temp;
+		system("cls");
+		//---------------------------------------------------------
+		PrintAltasTag();
+		std::cout << std::left << std::setw(5) << temp_id << std::left << std::setw(15) << temp_product << std::left << std::setw(5)
+			<< temp_pc << std::endl << std::endl;
 
 		std::cout << "Escribe tu PV" << std::endl;
 
@@ -283,26 +349,41 @@ int AltasProductos() {//get string
 		if (temp == -1)
 			return 0;
 		temp_pv = temp;
-
+		system("cls");
+		//---------------------------------------------------------
+		PrintAltasTag();
+		std::cout << std::left << std::setw(5) << temp_id << std::left << std::setw(15) << temp_product << std::left << std::setw(5)
+			<< temp_pc << std::left << std::setw(5) << temp_pv << std::endl << std::endl;
 		std::cout << "Escribe tu existencias" << std::endl;
 		temp = GetNumber();
 		if (temp == -1)
 			return 0;
 		temp_existencias = temp;
+		system("cls");
+		//---------------------------------------------------------
+		PrintAltasTag();
+		std::cout << std::left << std::setw(5) << temp_id << std::left << std::setw(15) << temp_product << std::left << std::setw(5)
+			<< temp_pc << std::left << std::setw(5) << temp_pv<< std::left << std::setw(15) << temp_existencias
+			<< std::endl << std::endl;
 		std::cout << "Escribe nivel de reorden" << std::endl;
 		temp = GetNumber();
 		if (temp == -1)
 			return 0;
 		temp_nr = temp;
 
-
 		//condiciones
-		product.add(new Product(temp_id, temp_product, temp_pc, temp_pv, temp_existencias, temp_nr));
-		//eftg::createnode(altas.ID, altas.producto, altas.PC, altas.PV, altas.existencias, ListProducts);
-		PrintInventoryTags();
-		product.display();
-		
-		//eftg::display(ListProducts);
+		if (findProduct(product, temp_product) == -1 && temp_pv < temp_pc && temp_existencias > temp_nr) {
+			product.add(new Product(temp_id, temp_product, temp_pc, temp_pv, temp_existencias, temp_nr));
+			system("cls");
+			std::cout << "producto exitosamente creado" << std::endl;
+
+		}
+		else {
+			system("cls");
+			std::cout << "producto no creado" << std::endl;
+
+		}
+
 
 
 	}
@@ -317,6 +398,7 @@ int BajasProductos() {
 	std::string product_to_search;
 	int position;
 	while (true) {
+		std::cout << std::string(3, '-') << "Bajas" << std::string(3, '-') << std::endl;
 		PrintInventoryTags();
 		product.display();
 
@@ -328,10 +410,13 @@ int BajasProductos() {
 		
 		position = findProduct(product, product_to_search);
 		if (position == -1) {
+			system("cls");
 			std::cout << "producto no existente" << std::endl;
 		}
 		else {
+			system("cls");
 			product.remove(position);
+			std::cout << "producto exitosamente eliminado" << std::endl;
 		}
 
 		//DeleteNode()
@@ -343,15 +428,171 @@ int BajasProductos() {
 
 
 }
+int consultas() {
+	std::string temp_product;
+	int position;
+	char ch;
+	while (temp_product != ("*"s)) {
+		std::cout << std::string(3, '-') << "Consultas" << std::string(3, '-') << std::endl;
+		std::cout << "Escribe el nombre del producto a consultar" << std::endl;
+		std::cin >> temp_product;
+		if (temp_product == "*"s) {
+			return 0;
+		}
+		DisplayProduct(product, temp_product);
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		ch = getchar();
+		if ( ch== '*') {
+			return 0;
+		}
+		system("cls");
+	}
+
+	return 0;
 
 
-int ModificacionesPC() {return 0;};
-int ModificacionesPV() { return 0; };
-int ModificacionesExistencia() { return 0; };
-int ModificacionesID() { return 0; };
 
 
+}
 
+using InputFn=void(Product*,int temp);
+//administracion -> modificaciones
+int ComunModificaciones(InputFn* modifier,std::string impresion) {
+	PrintInventoryTags();
+	product.display();
+	std::cout << std::string(3, '-') << ScreenOptions[state] << std::string(3, '-') << std::endl;
+	while (true) {
+		int temp;
+		std::string temp_producto;
+		int position;
+		std::cout << "Escribe el nombre del producto a cambiar" << std::endl;
+		std::cin >> temp_producto;
+		if (temp_producto == ("*"s)) {
+			return 0;
+		}
+		position = findProduct(product, temp_producto);
+		std::cout <<impresion << std::endl;
+		
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		if (position >= 0) {
+
+
+			temp = GetNumber();
+			if (temp == -1)
+				return 0;
+			//esto 
+			modifier(((Product*)product.get(position)),temp);
+			//((Product*)product.get(position))->pc=temp;
+			system("cls");
+			std::cout << "Cambio exitoso" << std::endl;
+
+		}
+		else {
+			system("cls");
+			std::cout << "Producto no existente vuelve a intentar" << std::endl;
+		}
+		std::cout << std::string(3, '-') << ScreenOptions[state] << std::string(3, '-') << std::endl;
+		PrintInventoryTags();
+		product.display();
+	}
+
+
+};
+int ModificacionesPC() { 
+	
+	return ComunModificaciones([](Product* pd, int temp) {
+		pd->pc = temp;
+		},"nuevo PC"s);
+
+};
+int ModificacionesPV() {
+	return ComunModificaciones([](Product* pd, int temp) {
+		pd->pv = temp;
+		}, "nuevo PV"s);
+};
+int ModificacionesExistencia() { 
+	return ComunModificaciones([](Product* pd, int temp) {
+		pd->existencia = temp;
+		}, "Numero de Existencias "s);
+};
+int ModificacionesID() {
+	return ComunModificaciones([](Product* pd, int temp) {
+		pd->id = temp;
+		}, "Cambio de ID"s);
+};
+
+
+//cuentas
+int AltasCuentas() {
+	
+
+	while (true)
+	{
+		char ch;
+		std::string temp_account = "";
+		std::string temp_password = "";
+		std::string validation_password = "";
+		bool isadmin;
+
+			std::cout << "Escribe una nueva cuenta" << std::endl;
+		std::cin >> temp_account;
+		if (temp_account == ("*"s)) {
+			return 0;
+		}
+		//temp password
+		ch = _getch();
+		while (ch != 13) {//character 13 is enter
+			if (ch == '*') {
+				return 0;
+			}
+			temp_password.push_back(ch);
+			std::cout << '*';
+			ch = _getch();
+
+		}
+		//Validation
+		ch = _getch();
+		while (ch != 13) {//character 13 is enter
+			if (ch == '*') {
+				return 0;
+			}
+			validation_password.push_back(ch);
+			std::cout << '*';
+			ch = _getch();
+
+		}
+
+		if (temp_password==validation_password){
+				std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+			do {
+				std::cout << "Es administrador (S/N)" << std::endl;
+				ch = _getch();
+				if (ch != 'S', ch != 'N') {
+					std::cout << "Escibe S o N para proseguir" << std::endl;
+				}
+			} while (ch != 'S', ch != 'N');
+			//(acc.isadmin ? "Si" : "No")
+			account.add(new Account(temp_account, temp_password, (ch == 'S' ? true : false)));
+		}
+
+		else {
+			std::cout << "no se pudo crear cuenta" << std::endl;
+		}
+		
+	}
+
+
+	
+}
+int MostrarCuentas() {
+	PrintAccountTags();
+	account.display();
+	while (_getch() != '*') {
+	}
+	return 0;
+
+}
 
 
 
@@ -375,6 +616,25 @@ int GetNumber() {
 
 
 }
+std::string GetString() {
+	char ch;
+	using namespace std::string_literals;
+	std::string str;
+	ch = _getch();
+	while (ch != 13) {//character 13 is enter
+		if (ch == '*') {
+			return "*"s;
+		}
+		str.push_back(ch);
+		std::cout << '*';
+		ch = _getch();
+
+	}
+
+
+
+}
+
 void Starting_Products_Accounts(List& product,List& account) {
 	using namespace std::string_literals;
 	product.add(new Product(2,"leche"s,10,11,23,5));

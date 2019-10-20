@@ -118,6 +118,21 @@ int findProduct(List list, std::string ProductSearched)
 
 
 }
+int findAccount(List list, std::string account_searched)
+{
+	//list.count
+	IntrusiveNode* pd = new Account();
+	pd = list.head;
+
+	for (int position = 0; position < list.count; position++) {
+		if (((Account*)pd)->account == account_searched)
+			return position;
+		pd = pd->next;
+
+	}
+	return -1;
+}
+
 void DisplayProduct(List list, std::string ProductSearched)
 {
 	IntrusiveNode* pd = new Product();

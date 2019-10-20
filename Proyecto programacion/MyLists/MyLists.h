@@ -54,21 +54,19 @@ struct List {
 
 void PrintInventoryTags();
 void PrintAccountTags();
+//find account
 int findProduct(List list, std::string ProductSearched);
+int findAccount(List list, std::string account_searched);
 void DisplayProduct(List list, std::string ProductSearched);
 void DeepCopyProduct(Product* pd, Product* to_copy);
 void SwapListElements(IntrusiveNode* ActualNode);
 void AlphabeticalDisplayProducts(List list);
-
+//by id display products
 
 
 void EraseToRewrite(std::string Filename);
 void LoadProductData(std::string filename, List& list);
 void LoadAccountData(std::string filename, List& list);
-//void displayProducts();
 
-//2 save data, tipo Product y tipo Cuentas
-
-//IntrusiveNode* MyNodeAllocator();
 
 
