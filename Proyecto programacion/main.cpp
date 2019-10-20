@@ -27,14 +27,12 @@ int RegresoMenu() { return 0; };
 
 
 int AltasCuentas();
-int BajasCuentas() { return 0; };
-int ConsultasCuentas() { return 0; };
+int BajasCuentas();
+int ConsultasCuentas();
 int ModificacionesCuentas() { return 0; };
 int MostrarCuentas();
 
 
-
-std::string GetString();
 int GetNumber();
 
 typedef int(*FunctionPointer)();
@@ -394,7 +392,6 @@ int AltasProductos() {//comporbar que el ID sea diferente
 
 }
 int BajasProductos() {
-
 	std::string product_to_search;
 	int position;
 	while (true) {
@@ -407,7 +404,7 @@ int BajasProductos() {
 		if (product_to_search == "*") {
 			return 0;
 		}
-		
+
 		position = findProduct(product, product_to_search);
 		if (position == -1) {
 			system("cls");
@@ -425,6 +422,7 @@ int BajasProductos() {
 
 
 	}
+
 
 
 }
@@ -536,10 +534,15 @@ int AltasCuentas() {
 
 			std::cout << "Escribe una nueva cuenta" << std::endl;
 		std::cin >> temp_account;
+
 		if (temp_account == ("*"s)) {
 			return 0;
 		}
+		std::cout << std::endl;
 		//temp password
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		std::cout << "Escriba password" << std::endl;
+		
 		ch = _getch();
 		while (ch != 13) {//character 13 is enter
 			if (ch == '*') {
@@ -550,7 +553,9 @@ int AltasCuentas() {
 			ch = _getch();
 
 		}
+		std::cout << std::endl;
 		//Validation
+		std::cout << "Escriba nuevamenta la misma password" << std::endl;
 		ch = _getch();
 		while (ch != 13) {//character 13 is enter
 			if (ch == '*') {
@@ -561,19 +566,19 @@ int AltasCuentas() {
 			ch = _getch();
 
 		}
-
+		std::cout << std::endl;
 		if (temp_password==validation_password){
-				std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+	
 
 			do {
-				std::cout << "Es administrador (S/N)" << std::endl;
+				std::cout << "Es administrador (s/n)" << std::endl;
 				ch = _getch();
-				if (ch != 'S', ch != 'N') {
-					std::cout << "Escibe S o N para proseguir" << std::endl;
+				if (ch != 's', ch != 'n') {
+					std::cout << "Escibe s o n para proseguir" << std::endl;
 				}
-			} while (ch != 'S', ch != 'N');
+			} while (ch != 's'&& ch != 'n');
 			//(acc.isadmin ? "Si" : "No")
-			account.add(new Account(temp_account, temp_password, (ch == 'S' ? true : false)));
+			account.add(new Account(temp_account, temp_password, (ch == 's' ? true : false)));
 		}
 
 		else {
@@ -585,6 +590,88 @@ int AltasCuentas() {
 
 	
 }
+int BajasCuentas() {
+	std::string account_to_search;
+	int position;
+	char ch;
+	std::string temp_password = "";
+	while (true) {
+		std::cout << std::string(3, '-') << "Bajas" << std::string(3, '-') << std::endl;
+		PrintAccountTags();
+		account.display();
+
+		std::cout << "Escribe el nombre de la cuenta a eliminar" << std::endl;
+		std::cin >> account_to_search;//get string
+		if (account_to_search == "*") {
+			return 0;
+		}
+
+		position = findAccount(account, account_to_search);
+		if (position == -1) {
+			system("cls");
+			std::cout << "Cuenta no existente" << std::endl;
+		}
+		else {
+			std::cout << "Antes de eliminar escriba el password de la cuenta" << std::endl;
+			ch = _getch();
+			while (ch != 13) {//character 13 is enter
+				if (ch == '*') {
+					return 0;
+				}
+				temp_password.push_back(ch);
+				std::cout << '*';
+				ch = _getch();
+
+			}
+			std::cout << std::endl;
+			if (temp_password == ((Account*)account.get(position))->password) {
+				system("cls");
+				product.remove(position);
+				std::cout << "Cuenta exitosamente eliminado" << std::endl;
+
+			}
+			else {
+				system("cls");
+				std::cout << "No se pudo eliminar cuenta" << std::endl;
+			}
+
+
+
+		}
+
+		//DeleteNode()
+
+
+
+
+	}
+}
+int ConsultasCuentas() { 
+	std::string account_to_search;
+	int position;
+	
+	while (true)
+	{
+		std::cout << "Escribe el nombre de una cuenta" << std::endl;
+		std::cin >> account_to_search;//get string
+		if (account_to_search == "*") {
+			return 0;
+		}
+		position = findAccount(account, account_to_search);
+		system("cls");
+		if (position == -1) {
+			std::cout << "No se encontro la cuenta" << std::endl;
+		}
+		else {
+			PrintAccountTags();
+			std::cout << *((Account*)account.get(position));
+		}
+		
+
+
+	}
+
+};
 int MostrarCuentas() {
 	PrintAccountTags();
 	account.display();
@@ -594,6 +681,7 @@ int MostrarCuentas() {
 
 }
 
+//modificaciones pendientes de cuentas
 
 
 
@@ -611,24 +699,6 @@ int GetNumber() {
 		if (myStream >> Number)
 			return Number;
 		std::cout << "Invalid number, please try again" << std::endl;
-	}
-
-
-
-}
-std::string GetString() {
-	char ch;
-	using namespace std::string_literals;
-	std::string str;
-	ch = _getch();
-	while (ch != 13) {//character 13 is enter
-		if (ch == '*') {
-			return "*"s;
-		}
-		str.push_back(ch);
-		std::cout << '*';
-		ch = _getch();
-
 	}
 
 
