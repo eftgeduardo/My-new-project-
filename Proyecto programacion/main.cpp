@@ -1,7 +1,15 @@
+
+//revisar todo lo URGENTE puede pasar un bug
 #include "MyLists/MyLists.h"
 #include <conio.h>
 #include <sstream>
 #include <stdlib.h>
+#include <ctime>
+#define KEY_UP 72
+#define KEY_DOWN 80
+#define KEY_LEFT 75
+#define KEY_RIGHT 77
+
 
 #define MaxSizeOfOption 8
 using namespace std::string_literals;
@@ -31,7 +39,15 @@ int BajasCuentas();
 int ConsultasCuentas();
 int ModificacionesCuentas() { return 0; };
 int MostrarCuentas();
+int ModificacionCuentas() {
+	return 0;
+}
+int ModificacionPassword() { return 0; };
 
+
+int MenuVentas();
+int MenuTicket();
+int CortedeCajaVendedor() { return 0; };
 
 int GetNumber();
 
@@ -41,7 +57,7 @@ FunctionPointer functionPointers[] = {
 	ValidacionAdministrador,
 	ValidacionVentas,
 	NULL,
-	NULL,
+	MenuVentas,
 	AltasProductos,
 	BajasProductos,
 	consultas,//consultas
@@ -58,9 +74,15 @@ FunctionPointer functionPointers[] = {
 	AltasCuentas,
 	BajasCuentas,
 	ConsultasCuentas,
-	ModificacionesCuentas,
+	ModificacionesCuentas,//21
 	MostrarCuentas,
-	RegresoMenu
+	RegresoMenu,//23
+	ModificacionCuentas,
+	ModificacionPassword,
+	RegresoMenu,//26
+	//inicio de ventas	
+	MenuTicket,//27
+	CortedeCajaVendedor//28
 };
 
 
@@ -73,9 +95,11 @@ std::string password = "hola";
 int Automata[][MaxSizeOfOption] = {
 	{1,2,-1,-2},//menu principal
 	{0,3,-2},//verificador Admin
-	{0,4,-2},//verificador 
+	{0,4,-2},//verificador
+	
 	{5,6,7,8,9,10,11,12}, //Administrador------------
-	{0,-2},
+	{27,28,-2},//ventas
+	//inicio de Administrador
 	{3,-2},
 	{3,-2},
 	{3,-2},
@@ -89,13 +113,18 @@ int Automata[][MaxSizeOfOption] = {
 	{8,-2},
 	{8,-2},//16
 	{3,-2},//17 regreso menu anterior 
-	{10,-2},//18 cuentas
+	{10,-2},//18 sub menu de cuentas
 	{10,-2},//19
 	{10,-2},//20
-	{10,-2},//21
+	{10,-2},//21 modificacion
 	{10,-2},//22
-	{3,-2}//23 regreso menu anterior 
-
+	{3,-2},//23 regreso menu anterior 
+	{21,-2},//24 submenu de modificacion
+	{21,-2},//25
+	{20,-2},//26 regreso menu anterior 
+	//inicio de ventas
+	{4,-2},
+	{0,-2}
 };
 char ScreenOptions[][30]{
 	{"Menu Principal"},//0
@@ -121,10 +150,11 @@ char ScreenOptions[][30]{
 	{"Consultas"},//20
 	{"modificaciones"},//21
 	{"Mostrar cuentas de usuarios"},//22
-	{"Regresar al menu anterior"}//23
-
-
-	
+	{"Regresar al menu anterior"},//23
+	{"Modificacion nombre cuenta"},//24
+	{"Modificacion de password"},//25
+	{"Regresar al menu anterior"}//26
+	//inicio de ventas	
 
 
 
@@ -133,11 +163,12 @@ char ScreenOptions[][30]{
 
 List product;
 List account;
+List ventas;
 int main() {
 	/*
 	List product;
 	List account;
-	//Starting_Products_Accounts(product,account);
+	//
 
 
 
@@ -151,9 +182,11 @@ int main() {
 	account.display();
 	account.SaveData();
 	*/
-	LoadProductData(Productfilename, product);
+	Starting_Products_Accounts(product, account);
+	//LoadProductData(Productfilename, product);
 	LoadAccountData(Accountfilename, account);
 	MenuOptions();
+	product.SaveData();
 	return 0;
 
 }
@@ -220,18 +253,9 @@ int ValidacionAdministrador() {
 		std::cout << "ingrese cuenta: ";
 
 		//std::cin >> acc;
-		ch = _getch();
-		while (ch != 13) {//character 13 is enter
-			if (ch == '*') {
-				return 0;
-			}
-
-			acc.push_back(ch);
-			std::cout << ch;
-			ch = _getch();
-
-		}
+		std::cin >> acc;
 		std::cout << std::endl;
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
 		std::cout << "ingrese contrasena: ";
 		ch = _getch();
@@ -239,9 +263,18 @@ int ValidacionAdministrador() {
 			if (ch == '*') {
 				return 0;
 			}
-			passw.push_back(ch);
-			std::cout << '*';
+			if (ch == 8) {
+				passw.pop_back();
+				std::cout << ch<<" "<<ch;
+
+			}
+			else {
+				passw.push_back(ch);
+				std::cout << '*';
+				
+			}
 			ch = _getch();
+			
 
 		}
 		position=findAccount(account, acc);
@@ -259,15 +292,67 @@ int ValidacionAdministrador() {
 		acc = "";
 		passw = "";
 
-
-
 	}
 
 
 
 }
 int ValidacionVentas() {
-	return 0;
+	std::string acc;
+	std::string passw;
+	std::string DataString = "";
+	char ch;
+	//Account = "admin"
+	//std::cin.ignore();
+	std::cout << std::string(3, '-') << ScreenOptions[state] << std::string(3, '-') << std::endl;
+	//std::getline(std::cin, passw);
+	while (true) {
+		int position;
+
+		std::cout << "ingrese cuenta: ";
+
+		//std::cin >> acc;
+		std::cin >> acc;
+		std::cout << std::endl;
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+		std::cout << "ingrese contrasena: ";
+		ch = _getch();
+		while (ch != 13) {//character 13 is enter
+			if (ch == '*') {
+				return 0;
+			}
+			if (ch == 8) {
+				passw.pop_back();
+				std::cout << ch << " " << ch;
+
+			}
+			else {
+				passw.push_back(ch);
+				std::cout << '*';
+
+			}
+			ch = _getch();
+
+
+		}
+		position = findAccount(account, acc);
+		if (position >= 0) {
+			if (passw == ((Account*)account.get(position))->password && acc == ((Account*)account.get(position))->account && ((Account*)account.get(position))->isadmin==false) {
+				return 1;
+			}
+		}
+
+
+
+		system("cls");
+		std::cout << "cuenta o password incorrecto. Intente de nuevo" << std::endl << std::endl;
+		std::cout << std::string(3, '-') << ScreenOptions[state] << std::string(3, '-') << std::endl;
+		acc = "";
+		passw = "";
+
+	}
+
 }
 
 
@@ -311,7 +396,7 @@ int AltasProductos() {//comporbar que el ID sea diferente
 		PrintAltasTag();
 		std::cout << "Escribe tu ID" << std::endl;
 		temp = GetNumber();
-		if (temp == -1)
+		if (temp == -1)// URGENTE
 			return 0;
 		temp_id = temp;
 		system("cls");
@@ -332,7 +417,7 @@ int AltasProductos() {//comporbar que el ID sea diferente
 			<< std::endl << std::endl;
 		std::cout << "Escribe tu PC" << std::endl;
 		temp = GetNumber();
-		if (temp == -1)
+		if (temp == -1)// URGENTE
 			return 0;
 		temp_pc = temp;
 		system("cls");
@@ -344,7 +429,7 @@ int AltasProductos() {//comporbar que el ID sea diferente
 		std::cout << "Escribe tu PV" << std::endl;
 
 		temp = GetNumber();
-		if (temp == -1)
+		if (temp == -1)// URGENTE
 			return 0;
 		temp_pv = temp;
 		system("cls");
@@ -354,7 +439,7 @@ int AltasProductos() {//comporbar que el ID sea diferente
 			<< temp_pc << std::left << std::setw(5) << temp_pv << std::endl << std::endl;
 		std::cout << "Escribe tu existencias" << std::endl;
 		temp = GetNumber();
-		if (temp == -1)
+		if (temp == -1)// URGENTE
 			return 0;
 		temp_existencias = temp;
 		system("cls");
@@ -365,12 +450,12 @@ int AltasProductos() {//comporbar que el ID sea diferente
 			<< std::endl << std::endl;
 		std::cout << "Escribe nivel de reorden" << std::endl;
 		temp = GetNumber();
-		if (temp == -1)
+		if (temp == -1)// URGENTE
 			return 0;
 		temp_nr = temp;
 
 		//condiciones
-		if (findProduct(product, temp_product) == -1 && temp_pv < temp_pc && temp_existencias > temp_nr) {
+		if (findProduct(product, temp_product) == -1 && temp_pc < temp_pv && temp_existencias > temp_nr) {
 			product.add(new Product(temp_id, temp_product, temp_pc, temp_pv, temp_existencias, temp_nr));
 			system("cls");
 			std::cout << "producto exitosamente creado" << std::endl;
@@ -470,13 +555,12 @@ int ComunModificaciones(InputFn* modifier,std::string impresion) {
 		}
 		position = findProduct(product, temp_producto);
 		std::cout <<impresion << std::endl;
-		
 		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 		if (position >= 0) {
 
 
 			temp = GetNumber();
-			if (temp == -1)
+			if (temp == -1)// URGENTE
 				return 0;
 			//esto 
 			modifier(((Product*)product.get(position)),temp);
@@ -685,7 +769,100 @@ int MostrarCuentas() {
 
 
 
+//ventas
+
+int MenuVentas() {
+	int number=0;
+	int position;
+	std::string temp_product;
+	char ch=0;
+	
+	//ventas
+	while (true)
+	{
+		std::cout << "Producto"<<std::endl;
+		std::cin >> temp_product;
+		if (temp_product == "*") return 0;
+		if (temp_product == "**") return 1;
+		position = findProduct(product, temp_product);
+		if (position == -1) {
+			std::cout << "producto no existente" << std::endl;
+
+		}
+		else {
+			std::cout << "Cantidad";
+			number = GetNumber();
+			while (number >= ((Product*)product.get(position))->existencia) {
+				std::cout << "Este producto tiene en existencias"<< ((Product*)product.get(position))->existencia;
+				std::cout << "Cantidad:";
+				number = GetNumber();
+				if (number == -1) return 0;
+				if (number == -2) return 1;
+			}
+			((Product*)product.get(position))->existencia -= number;
+			ventas.add(new Venta(temp_product,number, ((Product*)product.get(position))->pv));
+
+		}
+
+
+
+
+		/*while (ch != 13) {
+			ch = _getch();
+				if (ch == KEY_UP) {
+					system("cls");
+					number++;
+					std::cout << "vamos a imprimir numeros y subirlos con la flechita" << std::endl;
+					std::cout << number << std::endl;
+					
+				}
+				if (ch == KEY_DOWN) {
+					system("cls");
+					number--;
+					std::cout << "vamos a imprimir numeros y subirlos con la flechita" << std::endl;
+					std::cout << number << std::endl;
+
+				}
+		}*/
+		
+		
+		
+
+
+
+
+
+	}
+
+
+	return 0;
+}
+int MenuTicket() {
+
+	std::cout << "Ticket" << std::endl;
+	if (ventas.count > 0) {
+		ventas.display();
+
+		ventas.EmptyList();
+
+
+	}
+	else {
+		std::cout << "Ticket Vacio" << std::endl;
+	}
+
+	system("pause");
+	return 0;
+
+}
+
+//modificar cantidades
+
+
 /*------------Extra----------------*/
+
+
+
 int GetNumber() {
 	std::string input = "";
 	int Number;
@@ -694,6 +871,8 @@ int GetNumber() {
 		std::getline(std::cin, input);
 		if (input == "*")
 			return -1;
+		if (input == "**")
+			return -2;
 		// This code converts from string to number safely.
 		std::stringstream myStream(input);
 		if (myStream >> Number)

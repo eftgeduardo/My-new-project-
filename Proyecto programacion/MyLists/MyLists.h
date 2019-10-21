@@ -12,6 +12,7 @@ struct IntrusiveNode {
 	virtual void SaveData(IntrusiveNode& head) = 0;
 };
 
+
 struct Product : IntrusiveNode {
 	int id = 0;
 	std::string product = "";
@@ -35,9 +36,20 @@ struct Account : IntrusiveNode {
 	void display(std::ostream& os) override;
 	void SaveData(IntrusiveNode& head) override;
 };
+struct Venta : IntrusiveNode {
+
+	std::string product="";
+	int cantidad=0;
+	int precioUnitario=0;
+	Venta() = default;
+	Venta(std::string product,int cantidad,int precioUnitario);
+	void display(std::ostream& os) override;
+	void SaveData(IntrusiveNode& head) override;
+	
+};
 std::ostream& operator<<(std::ostream& os, Product& pd);
 std::ostream& operator<<(std::ostream& os, Account& acc);
-
+std::ostream& operator<<(std::ostream& os, Venta& ven);
 struct List {
 	//using Allocator = IntrusiveNode *();
 	//Allocator* allocator;
@@ -49,6 +61,7 @@ struct List {
 	void remove(int position);
 	void display();
 	void SaveData();
+	void EmptyList ();
 
 };
 

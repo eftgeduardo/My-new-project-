@@ -51,7 +51,6 @@ void List::display()
 {
 	auto* node = head;
 
-
 	for (int i = 0; i < count; i++) {
 		node->display(std::cout);
 		//std::cout << *(Product*)node;
@@ -71,6 +70,8 @@ void List::SaveData()
 
 }
 
+
+
 std::ostream& operator<<(std::ostream& os, Product& pd)
 {
 
@@ -89,6 +90,13 @@ std::ostream& operator<<(std::ostream& os, Account& acc)
 
 	return os;
 }
+std::ostream& operator<<(std::ostream& os, Venta& ven) {
+	std::cout << std::left << std::setw(15) << ven.product << std::left << std::setw(5) << ven.cantidad << std::left << std::setw(5)
+		<< ven.precioUnitario << std::left << std::setw(5) << ven.precioUnitario * ven.cantidad << std::endl;
+	return os;
+}
+
+
 
 void PrintInventoryTags() {
 	std::cout << std::left << std::setw(5) << "ID" << std::left << std::setw(15) << "producto" << std::left << std::setw(5)
@@ -300,7 +308,7 @@ void LoadAccountData(std::string filename, List& list)
 
 }
 
-Product::Product(int id, std::string product, int pv, int pc, int existencias, int nr)
+Product::Product(int id, std::string product, int pc, int pv, int existencias, int nr)
 {
 	this->id = id;
 	this->product = product;
@@ -382,4 +390,53 @@ void Account::SaveData(IntrusiveNode& head)
 	file.close();
 }
 
+Venta::Venta(std::string product, int number, int precio)
+{
 
+
+	this->product = product;
+	this->cantidad = number;
+	this->precioUnitario = precio;
+
+}
+
+void Venta::display(std::ostream& os)
+{
+	os<<*this;
+}
+
+void Venta::SaveData(IntrusiveNode& head)
+{
+
+	return;
+}
+
+void List::EmptyList()
+{
+	//head
+
+	if (count > 0) {
+		IntrusiveNode* node = new Venta();
+		node = head;
+		if (count > 1) {
+			IntrusiveNode* Nextnode = new Venta();
+			Nextnode = node->next;
+			int i = 0;
+			for (i = 0; i < count - 1; i++) {
+
+				delete ((Venta*)node);
+				//IntrusiveNode* node = Nextnode;
+				Nextnode = node->next;
+			}
+			delete ((Venta*)Nextnode);
+		}
+		else {
+			delete ((Venta*)node);
+		}
+		count = 0;
+
+	}
+
+
+
+}
