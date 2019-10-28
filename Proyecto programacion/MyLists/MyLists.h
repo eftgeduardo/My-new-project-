@@ -69,11 +69,13 @@ void PrintInventoryTags();
 void PrintAccountTags();
 //find account
 int findProduct(List list, std::string ProductSearched);
+int findProduct(List list, int ID);
 int findAccount(List list, std::string account_searched);
 void DisplayProduct(List list, std::string ProductSearched);
 void DeepCopyProduct(Product* pd, Product* to_copy);
 void SwapListElements(IntrusiveNode* ActualNode);
-void AlphabeticalDisplayProducts(List list);
+void SortProductsAlpha(List list);
+void SortProductsID(List list);
 //by id display products
 
 

@@ -30,7 +30,9 @@ int ModificacionesPC();
 int ModificacionesPV();
 int ModificacionesExistencia();
 int ModificacionesID();
-int MostrarInventario();
+//int MostrarInventario();
+int MostrarInventarioAlpha();
+int MostrarInventarioID();
 int RegresoMenu() { return 0; };
 
 
@@ -62,7 +64,7 @@ FunctionPointer functionPointers[] = {
 	BajasProductos,
 	consultas,//consultas
 	NULL,//8 modificaciones
-	MostrarInventario,
+	nullptr,
 	NULL,//10 administrar cuentas
 	NULL,//11 corte de caja (si tiene funcion)
 	RegresoMenu,//principal
@@ -82,7 +84,11 @@ FunctionPointer functionPointers[] = {
 	RegresoMenu,//26
 	//inicio de ventas	
 	MenuTicket,//27
-	CortedeCajaVendedor//28
+	CortedeCajaVendedor,//28
+	MostrarInventarioID,//29
+	MostrarInventarioAlpha,//30
+	RegresoMenu//31
+
 };
 
 
@@ -104,7 +110,7 @@ int Automata[][MaxSizeOfOption] = {
 	{3,-2},
 	{3,-2},
 	{13,14,15,16,17,-2},//8 modificaciones
-	{3,-2},
+	{29,30,31,-2},
 	{18,19,20,21,22,23,-2},//10 cuentas
 	{3,-2},//11
 	{0,-2},//12
@@ -123,8 +129,13 @@ int Automata[][MaxSizeOfOption] = {
 	{21,-2},//25
 	{20,-2},//26 regreso menu anterior 
 	//inicio de ventas
-	{4,-2},
-	{0,-2}
+	{4,-2},//27
+	{0,-2},//28
+
+	{9,-2},//29
+	{9,-2},//30
+	{3,-2},//31
+
 };
 char ScreenOptions[][30]{
 	{"Menu Principal"},//0
@@ -153,8 +164,13 @@ char ScreenOptions[][30]{
 	{"Regresar al menu anterior"},//23
 	{"Modificacion nombre cuenta"},//24
 	{"Modificacion de password"},//25
-	{"Regresar al menu anterior"}//26
-	//inicio de ventas	
+	{"Regresar al menu anterior"},//26
+	{"Menu Ticket"},//27ventas
+	{"CortedeCajaVendedor"},//28ventas
+
+	{"Por ID"},//29orden de inventario
+	{"Por Producto"},//30
+	{"Regresar al menu anterior"}//31
 
 
 
@@ -184,7 +200,7 @@ int main() {
 	*/
 	Starting_Products_Accounts(product, account);
 	//LoadProductData(Productfilename, product);
-	LoadAccountData(Accountfilename, account);
+	//LoadAccountData(Accountfilename, account);
 	MenuOptions();
 	product.SaveData();
 	return 0;
@@ -212,7 +228,7 @@ void MenuOptions() {
 			Option = functionPointers[state]();
 		}
 
-		if (Option <= 9 && Option >= 0)
+		if (Option <= 9 && Option >= 0&&Option<Size)
 		{
 			state = Automata[state][Option];
 			
@@ -358,7 +374,7 @@ int ValidacionVentas() {
 
 
 //administracion
-int MostrarInventario() {//falta mejorar
+/*int MostrarInventario() {//falta mejorar
 	PrintInventoryTags();
 	product.display();
 	while (_getch() != '*') {
@@ -366,7 +382,29 @@ int MostrarInventario() {//falta mejorar
 	return 0;
 
 
+}*/
+int MostrarInventarioAlpha() {
+	PrintInventoryTags();
+	SortProductsAlpha(product);
+	product.display();
+	while (_getch() != '*') {
+	}
+	return 0;
+
+
 }
+int MostrarInventarioID() {
+	PrintInventoryTags();
+	SortProductsID(product);
+	product.display();
+	while (_getch() != '*') {
+	}
+	return 0;
+
+
+}
+
+
 void PrintAltasTag() {
 	std::cout << std::string(3, '-') << "Altas" << std::string(3, '-') << std::endl;
 	PrintInventoryTags();
@@ -380,6 +418,7 @@ int AltasProductos() {//comporbar que el ID sea diferente
 	int temp_existencias = 0;
 	int temp_pc = 0;
 	int temp_nr = 0;
+	int lettercount;//lo necesito
 
 
 	
@@ -392,68 +431,146 @@ int AltasProductos() {//comporbar que el ID sea diferente
 		<< "PC" << std::left << std::setw(5) << "PV" << std::left << std::setw(15) << "Existencias"
 		<< std::left << std::setw(20) << "Nivel de reorden" << std::endl << std::endl;
 		*/
-		//---------------------------------------------------------
+		//----------------------------ID--------------------------
 		PrintAltasTag();
-		std::cout << "Escribe tu ID" << std::endl;
-		temp = GetNumber();
-		if (temp == -1)// URGENTE
-			return 0;
-		temp_id = temp;
-		system("cls");
-		//---------------------------------------------------------
-		PrintAltasTag();
-		std::cout << std::left << std::setw(5) << temp_id <<std::endl << std::endl;
-		std::cout << "Escribe tu producto" << std::endl;
-		std::cin >> temp_product;
-		if (temp_product == ("*"s)) {
-			return 0;
-		}
-		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-		system("cls");
+		//std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		do
+		{
+			
+			std::cout << "Escribe tu ID" << std::endl;
+			do
+			{
+				temp = GetNumber();
+				if (temp == -1)
+					return 0;
+				if (temp == -2)
+					std::cout << "Numero Invalido, intenta nuevamente" << std::endl;
+			} while (temp == -2);
+			temp_id = temp;
 
-		//---------------------------------------------------------
+			system("cls");
+			if (findProduct(product, temp_id) != -1) {
+				PrintAltasTag();
+				//std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+				std::cout << "ID Invalido, intenta nuevamente" << std::endl;
+			}
+
+		} while (findProduct(product,temp_id)!=-1);
+
+		//--------------------------Product-------------------------------
+		PrintAltasTag();
+		std::cout << std::left << std::setw(5) << temp_id << std::endl << std::endl;
+		do
+		{
+
+			std::cout << "Escribe tu producto" << std::endl;
+			std::cin >> temp_product;
+			if (temp_product == ("*"s)) {
+				return 0;
+			}
+			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+			system("cls");
+			if (findProduct(product, temp_product) != -1) {
+				PrintAltasTag();
+				std::cout << std::left << std::setw(5) << temp_id << std::endl << std::endl;
+
+				std::cout << "ID Invalido, intenta nuevamente" << std::endl;
+			}
+
+		} while (findProduct(product, temp_product) != -1);
+		
+
+
+		//----------------------PC,PV----------------------
+		
 		PrintAltasTag();
 		std::cout << std::left << std::setw(5) << temp_id << std::left << std::setw(15) << temp_product
 			<< std::endl << std::endl;
-		std::cout << "Escribe tu PC" << std::endl;
-		temp = GetNumber();
-		if (temp == -1)// URGENTE
-			return 0;
-		temp_pc = temp;
-		system("cls");
-		//---------------------------------------------------------
-		PrintAltasTag();
-		std::cout << std::left << std::setw(5) << temp_id << std::left << std::setw(15) << temp_product << std::left << std::setw(5)
-			<< temp_pc << std::endl << std::endl;
+		do
+		{
 
-		std::cout << "Escribe tu PV" << std::endl;
 
-		temp = GetNumber();
-		if (temp == -1)// URGENTE
-			return 0;
-		temp_pv = temp;
-		system("cls");
-		//---------------------------------------------------------
+			std::cout << "Escribe tu PC" << std::endl;
+			do
+			{	temp = GetNumber();
+				if (temp == -1)
+					return 0;
+				if (temp == -2) 
+					std::cout << "Numero Invalido, intenta nuevamente" << std::endl;
+			} while (temp==-2);
+			temp_pc = temp;
+			system("cls");
+
+
+			//---------------------------------------------------------
+			PrintAltasTag();
+			std::cout << std::left << std::setw(5) << temp_id << std::left << std::setw(15) << temp_product << std::left << std::setw(5)
+				<< temp_pc << std::endl << std::endl;
+
+			std::cout << "Escribe tu PV" << std::endl;
+
+			do
+			{	temp = GetNumber();
+				if (temp == -1)
+					return 0;
+				if (temp == -2)
+					std::cout << "Numero Invalido, intenta nuevamente" << std::endl;
+			} while (temp == -2);
+			temp_pv = temp;
+			system("cls");
+			if (temp_pc > temp_pv) {
+				
+				PrintAltasTag();
+				std::cout << std::left << std::setw(5) << temp_id << std::left << std::setw(15) << temp_product
+					<< std::endl << std::endl;
+				std::cout << "Precio de Compra debe ser menor a precio de Venta" << std::endl;
+			}
+		} while (temp_pc > temp_pv);
+
+
+		//---------------------------existencias, reorden----------------------------
 		PrintAltasTag();
 		std::cout << std::left << std::setw(5) << temp_id << std::left << std::setw(15) << temp_product << std::left << std::setw(5)
 			<< temp_pc << std::left << std::setw(5) << temp_pv << std::endl << std::endl;
-		std::cout << "Escribe tu existencias" << std::endl;
-		temp = GetNumber();
-		if (temp == -1)// URGENTE
-			return 0;
-		temp_existencias = temp;
-		system("cls");
-		//---------------------------------------------------------
-		PrintAltasTag();
-		std::cout << std::left << std::setw(5) << temp_id << std::left << std::setw(15) << temp_product << std::left << std::setw(5)
-			<< temp_pc << std::left << std::setw(5) << temp_pv<< std::left << std::setw(15) << temp_existencias
-			<< std::endl << std::endl;
-		std::cout << "Escribe nivel de reorden" << std::endl;
-		temp = GetNumber();
-		if (temp == -1)// URGENTE
-			return 0;
-		temp_nr = temp;
+		do
+		{
 
+			std::cout << "Escribe tu existencias" << std::endl;
+			do
+			{	temp = GetNumber();
+				if (temp == -1)
+					return 0;
+				if (temp == -2)
+					std::cout << "Numero Invalido, intenta nuevamente" << std::endl;
+			} while (temp == -2);
+
+			temp_existencias = temp;
+			system("cls");
+			//----------------------------reorden---------------------------
+			PrintAltasTag();
+			std::cout << std::left << std::setw(5) << temp_id << std::left << std::setw(15) << temp_product << std::left << std::setw(5)
+				<< temp_pc << std::left << std::setw(5) << temp_pv<< std::left << std::setw(15) << temp_existencias
+				<< std::endl << std::endl;
+			std::cout << "Escribe nivel de reorden" << std::endl;
+			do
+			{	temp = GetNumber();
+				if (temp == -1)
+					return 0;
+				if (temp == -2)
+					std::cout << "Numero Invalido, intenta nuevamente" << std::endl;
+			} while (temp == -2);
+
+			temp_nr = temp;
+
+			if (temp_existencias < temp_nr) {
+				PrintAltasTag();
+				std::cout << std::left << std::setw(5) << temp_id << std::left << std::setw(15) << temp_product << std::left << std::setw(5)
+					<< temp_pc << std::left << std::setw(5) << temp_pv << std::left << std::setw(15) << temp_existencias
+					<< std::endl << std::endl;
+				std::cout << "Existencias debe ser mayor al Nivel de reorden  " << std::endl;
+			}
+		} while (temp_existencias < temp_nr);
 		//condiciones
 		if (findProduct(product, temp_product) == -1 && temp_pc < temp_pv && temp_existencias > temp_nr) {
 			product.add(new Product(temp_id, temp_product, temp_pc, temp_pv, temp_existencias, temp_nr));
@@ -632,9 +749,18 @@ int AltasCuentas() {
 			if (ch == '*') {
 				return 0;
 			}
-			temp_password.push_back(ch);
-			std::cout << '*';
+			if (ch == 8) {
+				temp_password.pop_back();
+				std::cout << ch << " " << ch;
+
+			}
+			else {
+				temp_password.push_back(ch);
+				std::cout << '*';
+
+			}
 			ch = _getch();
+
 
 		}
 		std::cout << std::endl;
@@ -645,9 +771,18 @@ int AltasCuentas() {
 			if (ch == '*') {
 				return 0;
 			}
-			validation_password.push_back(ch);
-			std::cout << '*';
+			if (ch == 8) {
+				validation_password.pop_back();
+				std::cout << ch<<" "<<ch;
+
+			}
+			else {
+				validation_password.push_back(ch);
+				std::cout << '*';
+				
+			}
 			ch = _getch();
+			
 
 		}
 		std::cout << std::endl;
@@ -657,7 +792,7 @@ int AltasCuentas() {
 			do {
 				std::cout << "Es administrador (s/n)" << std::endl;
 				ch = _getch();
-				if (ch != 's', ch != 'n') {
+				if (ch != 's'&& ch != 'n') {
 					std::cout << "Escibe s o n para proseguir" << std::endl;
 				}
 			} while (ch != 's'&& ch != 'n');
@@ -696,28 +831,52 @@ int BajasCuentas() {
 			std::cout << "Cuenta no existente" << std::endl;
 		}
 		else {
-			std::cout << "Antes de eliminar escriba el password de la cuenta" << std::endl;
-			ch = _getch();
-			while (ch != 13) {//character 13 is enter
-				if (ch == '*') {
-					return 0;
-				}
-				temp_password.push_back(ch);
-				std::cout << '*';
-				ch = _getch();
 
-			}
-			std::cout << std::endl;
-			if (temp_password == ((Account*)account.get(position))->password) {
-				system("cls");
-				product.remove(position);
-				std::cout << "Cuenta exitosamente eliminado" << std::endl;
+			if (((Account*)account.get(position))->isadmin)
+			{
+				std::cout << "Antes de eliminar escriba el password de la cuenta" << std::endl;
+				ch = _getch();
+				while (ch != 13) {//character 13 is enter
+					if (ch == '*') {
+						return 0;
+					}
+					if (ch == 8) {
+						temp_password.pop_back();
+						std::cout << ch << " " << ch;
+
+					}
+					else {
+						temp_password.push_back(ch);
+						std::cout << '*';
+
+					}
+					ch = _getch();
+
+
+				}
+				std::cout << std::endl;
+				if (temp_password == ((Account*)account.get(position))->password) {
+					system("cls");
+					account.remove(position);
+					std::cout << "Cuenta exitosamente eliminado" << std::endl;
+
+
+				}
+				else {
+					system("cls");
+					std::cout << "No se pudo eliminar cuenta" << std::endl;
+				}
 
 			}
 			else {
 				system("cls");
-				std::cout << "No se pudo eliminar cuenta" << std::endl;
+				account.remove(position);
+				std::cout << "Cuenta exitosamente eliminado" << std::endl;
+				
+
 			}
+
+			
 
 
 
@@ -792,7 +951,7 @@ int MenuVentas() {
 		else {
 			std::cout << "Cantidad";
 			number = GetNumber();
-			while (number >= ((Product*)product.get(position))->existencia) {
+			while (number > ((Product*)product.get(position))->existencia) {
 				std::cout << "Este producto tiene en existencias"<< ((Product*)product.get(position))->existencia;
 				std::cout << "Cantidad:";
 				number = GetNumber();
@@ -839,6 +998,14 @@ int MenuVentas() {
 }
 int MenuTicket() {
 
+	time_t rawtime=time(0);
+	struct tm timeinfo;
+	localtime_s(&timeinfo, &rawtime);
+
+	std::cout << "Hora: " << timeinfo.tm_hour << ":" << std::setfill('0') << std::setw(2) << timeinfo.tm_min << ":" << std::setfill('0') << std::setw(2) << timeinfo.tm_sec << std::endl;
+	std::cout << "Fecha: " << timeinfo.tm_mday << "/" << timeinfo.tm_mon + 1 << "/" << timeinfo.tm_year + 1900 << std::endl;
+
+	
 	std::cout << "Ticket" << std::endl;
 	if (ventas.count > 0) {
 		ventas.display();
@@ -877,7 +1044,7 @@ int GetNumber() {
 		std::stringstream myStream(input);
 		if (myStream >> Number)
 			return Number;
-		std::cout << "Invalid number, please try again" << std::endl;
+		std::cout << "Numero Invalido, intenta nuevamente" << std::endl;
 	}
 
 

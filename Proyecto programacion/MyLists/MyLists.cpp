@@ -126,6 +126,23 @@ int findProduct(List list, std::string ProductSearched)
 
 
 }
+int findProduct(List list, int ID)
+{
+	//list.count
+	IntrusiveNode* pd = new Product();
+	pd = list.head;
+
+	for (int position = 0; position < list.count; position++) {
+		if (((Product*)pd)->id == ID)
+			return position;
+		pd = pd->next;
+
+	}
+	return -1;
+
+
+}
+
 int findAccount(List list, std::string account_searched)
 {
 	//list.count
@@ -183,16 +200,16 @@ void SwapListElements(IntrusiveNode* ActualNode)
 	DeepCopyProduct((Product*)NextNode, (Product*)temp);
 
 }
-void AlphabeticalDisplayProducts(List list)
+void SortProductsAlpha(List list)
 {
 	IntrusiveNode* TempActual = new Product();
 
 
 	IntrusiveNode* TempNext = new Product();
+	int i = 0;
 
 
-
-	for (int i = 0; i < list.count - 1; i++) {
+	for (i = 0; i < list.count - 1; i++) {
 		TempActual = list.head;
 		TempNext = TempActual->next;
 		for (int j = 0; j < list.count - i - 1; j++) {
@@ -208,6 +225,27 @@ void AlphabeticalDisplayProducts(List list)
 	}
 
 
+}
+
+void SortProductsID(List list)
+{
+	IntrusiveNode* TempActual = new Product();
+	IntrusiveNode* TempNext = new Product();
+
+	for (int i = 0; i < list.count - 1; i++) {
+		TempActual = list.head;
+		TempNext = TempActual->next;
+		for (int j = 0; j < list.count - i - 1; j++) {
+			if (((Product*)TempNext)->id<((Product*)TempActual)->id) {//si sale positivo significa que el actual es menor que el siguiente
+				//std::cout << "hola" << TempNext->producto.compare(TempActual->producto) << std::endl;
+				SwapListElements(TempActual);
+			}
+			TempActual = TempNext;
+			TempNext = TempActual->next;
+		}
+
+		//sino huba CAMBIO un break;
+	}
 }
 
 void EraseToRewrite(std::string Filename)
