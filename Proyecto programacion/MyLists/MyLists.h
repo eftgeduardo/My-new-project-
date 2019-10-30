@@ -30,9 +30,11 @@ struct Account : IntrusiveNode {
 	std::string account;
 	std::string password;
 	bool isadmin = false;
-
+	int pv_caja=0;
+	int pc_caja=0;
 	Account() = default;
 	Account(std::string account, std::string password, bool isadmin);
+	Account(std::string account, std::string password, bool isadmin,int pc_caja,int pv_caja);
 	void display(std::ostream& os) override;
 	void SaveData(IntrusiveNode& head) override;
 };

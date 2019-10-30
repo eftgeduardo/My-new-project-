@@ -86,13 +86,14 @@ std::ostream& operator<<(std::ostream& os, Product& pd)
 std::ostream& operator<<(std::ostream& os, Account& acc)
 {
 
-	os << std::left << std::setw(15) << acc.account << std::left << std::setw(10) << (acc.isadmin ? "Si" : "No") << std::endl;
+	os << std::left << std::setw(15) << acc.account << std::left << std::setw(10) << (acc.isadmin ? "Si" : "No") <<  
+		"PV: " <<std::left << std::setw(8) << acc.pv_caja << "PC: " << std::left << std::setw(8) << acc.pc_caja << std::endl;
 
 	return os;
 }
 std::ostream& operator<<(std::ostream& os, Venta& ven) {
-	std::cout << std::left << std::setw(15) << ven.product << std::left << std::setw(5) << ven.cantidad << std::left << std::setw(5)
-		<< ven.precioUnitario << std::left << std::setw(5) << ven.precioUnitario * ven.cantidad << std::endl;
+	std::cout << std::left << std::setw(10) << ven.product << std::left << std::setw(10) << ven.cantidad << std::left << std::setw(10)
+		<< ven.precioUnitario << std::left << std::setw(10) << ven.precioUnitario * ven.cantidad  << std::endl;
 	return os;
 }
 
@@ -310,6 +311,8 @@ void LoadAccountData(std::string filename, List& list)
 	int length = file.tellg();//lenght of archive
 
 	while (pointer != length) {
+		int temp_pc_caja;
+		int temp_pv_caja;
 		bool temp_isadmin;
 		char SizeString_accounts;
 		char SizeString_password;
@@ -335,7 +338,9 @@ void LoadAccountData(std::string filename, List& list)
 		//todo lo demas
 		pointer = file.tellg();//position in file
 		file.read(reinterpret_cast<char*>(&temp_isadmin), sizeof(char));
-		list.add(new Account(temp_account, temp_password, temp_isadmin));
+		file.read(reinterpret_cast<char*>(&temp_pc_caja), sizeof(temp_pc_caja));
+		file.read(reinterpret_cast<char*>(&temp_pv_caja), sizeof(temp_pv_caja));
+		list.add(new Account(temp_account, temp_password, temp_isadmin, temp_pc_caja, temp_pv_caja));
 
 		pointer = file.tellg();//position in file
 	}
@@ -397,6 +402,15 @@ Account::Account(std::string account, std::string password, bool isadmin)
 	this->isadmin = isadmin;
 
 }
+Account::Account(std::string account, std::string password, bool isadmin, int pc_caja, int pv_caja)
+{
+
+	this->account = account;
+	this->password = password;
+	this->isadmin = isadmin;
+	this->pc_caja = pc_caja;
+	this->pv_caja = pv_caja;
+}
 void Account::display(std::ostream& os)
 {
 	os << *this;
@@ -423,6 +437,8 @@ void Account::SaveData(IntrusiveNode& head)
 
 	//todo lo demas
 	file.write(reinterpret_cast<char*>(&data.isadmin), sizeof(char));
+	file.write(reinterpret_cast<char*>(&data.pc_caja), sizeof(data.pc_caja));
+	file.write(reinterpret_cast<char*>(&data.pv_caja), sizeof(data.pv_caja));
 	//Data.write(reinterpret_cast<char*>(&SizeString), sizeof( SizeString));
 
 	file.close();
@@ -463,6 +479,7 @@ void List::EmptyList()
 			for (i = 0; i < count - 1; i++) {
 
 				delete ((Venta*)node);
+				IntrusiveNode* node = new Venta();
 				//IntrusiveNode* node = Nextnode;
 				Nextnode = node->next;
 			}
