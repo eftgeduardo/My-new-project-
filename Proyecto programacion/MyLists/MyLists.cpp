@@ -78,7 +78,11 @@ std::ostream& operator<<(std::ostream& os, Product& pd)
 
 	std::cout << std::left << std::setw(5) << pd.id << std::left << std::setw(15) << pd.product << std::left << std::setw(5)
 		<< pd.pc << std::left << std::setw(5) << pd.pv << std::left << std::setw(15) << pd.existencia
-		<< std::left << std::setw(20) << pd.nr << std::endl;
+		<< std::left << std::setw(20) << pd.nr;
+	if (pd.existencia < pd.nr) {
+		std::cout << std::left << std::setw(15) <<"   *";
+	}
+	else std::cout << std::endl;
 
 	return os;
 	// TODO: insert return statement here
@@ -102,7 +106,7 @@ std::ostream& operator<<(std::ostream& os, Venta& ven) {
 void PrintInventoryTags() {
 	std::cout << std::left << std::setw(5) << "ID" << std::left << std::setw(15) << "producto" << std::left << std::setw(5)
 		<< "PC" << std::left << std::setw(5) << "PV" << std::left << std::setw(15) << "Existencias"
-		<< std::left << std::setw(20) << "Nivel de reorden" << std::endl << std::endl;
+		<< std::left << std::setw(20) << "Nivel de reorden" <<  std::left << std::setw(15)<<"resurtir" << std::endl << std::endl;
 }
 
 void PrintAccountTags()

@@ -211,7 +211,7 @@ int main() {
 	*/
 	Starting_Products_Accounts(product, account);
 	//account.SaveData();
-	LoadProductData(Productfilename, product);
+	//LoadProductData(Productfilename, product);
 	LoadAccountData(Accountfilename, account);
 	MenuOptions();
 	product.SaveData();
@@ -998,24 +998,40 @@ int MenuVentas() {
 			std::cout << "Cantidad: ";
 			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 			number = GetNumberVentas();
-			std::cout << std::endl;
+
 			if (((Product*)product.get(position))->existencia != 0) {
-				while (number > ((Product*)product.get(position))->existencia) {
+				if (number == -1) {
+					MenuTicket(pc_caja, pv_caja);
+					return 0;
+				}
+				if (number == -2) return 1;//empty list y quitar el subtotal
+				std::cout << std::endl;
+				if (number > ((Product*)product.get(position))->existencia) {
 					std::cout << "Este producto tiene en existencias " << ((Product*)product.get(position))->existencia << std::endl;
-					std::cout << "Cantidad: ";
-					number = GetNumberVentas();
-					if (number == -1) {
-						MenuTicket(pc_caja, pv_caja);
-						return 0;
+					std::cout << "QUiere eso (s/n) " << std::endl;;
+					//number = GetNumberVentas();
+					ch = _getch();
+					if (ch == 's') {
+						number = ((Product*)product.get(position))->existencia;
+						((Product*)product.get(position))->existencia -= number;
+
+						ventas.add(new Venta(temp_product, number, ((Product*)product.get(position))->pv));
+						pv_caja += (((Product*)product.get(position))->pv) * number;
+						pc_caja += (((Product*)product.get(position))->pc) * number;
+
 					}
 
-					if (number == -2) return 1;//empty list y quitar el subtotal
 				}
-				((Product*)product.get(position))->existencia -= number;
+				else {
+					((Product*)product.get(position))->existencia -= number;
 
-				ventas.add(new Venta(temp_product, number, ((Product*)product.get(position))->pv));
-				pv_caja += (((Product*)product.get(position))->pv) * number;
-				pc_caja += (((Product*)product.get(position))->pc) * number;
+					ventas.add(new Venta(temp_product, number, ((Product*)product.get(position))->pv));
+					pv_caja += (((Product*)product.get(position))->pv) * number;
+					pc_caja += (((Product*)product.get(position))->pc) * number;
+
+
+				}
+
 
 			}
 			else{
@@ -1052,12 +1068,18 @@ void MenuTicket(int pc, int pv) {
 	time_t rawtime=time(0);
 	struct tm timeinfo;
 	localtime_s(&timeinfo, &rawtime);
+	std::cout << "		Abarrotes -La Estrella-" << std::endl;
+	std::cout << "		RFC : ALE 730903 BB9" << std::endl;
+	std::cout << "        Ticket de venta" << std::endl << std::endl;
+
 
 	std::cout << "Hora: " << timeinfo.tm_hour << ":" << std::setfill('0') << std::setw(2) << timeinfo.tm_min << ":" << std::setfill('0') << std::setw(2) << timeinfo.tm_sec << std::endl;
 	std::cout << "Fecha: " << timeinfo.tm_mday << "/" << timeinfo.tm_mon + 1 << "/" << timeinfo.tm_year + 1900 << std::endl;
-	std::cout << std::setfill(' ');
+	std::cout << std::setfill(' ') << std::endl;
+	std::cout << "Vendedor: " << ((Account*)account.get(CurrentAccount))->account << std::endl << std::endl;;
+
 	
-	std::cout << "Ticket" << std::endl;
+	
 
 	std::cout << std::left << std::setw(10) << "Producto" << std::left << std::setw(10) << "Cantidad" << std::left << std::setw(10)
 		<< "Precio" << std::left << std::setw(10) << "subtotal" << std::endl;
@@ -1090,9 +1112,6 @@ void MenuTicket(int pc, int pv) {
 
 
 /*------------Extra----------------*/
-
-
-
 int GetNumber() {//revisar todos por el doble asterisco que tenia antes
 	std::string input = "";
 	int Number;
