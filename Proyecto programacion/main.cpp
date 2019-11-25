@@ -43,13 +43,11 @@ int RegresoMenu() { return 0; };
 int AltasCuentas();
 int BajasCuentas();
 int ConsultasCuentas();
-int ModificacionesCuentas() { return 0; };
+//int ModificacionesCuentas() { return 0; };
 int MostrarCuentas();
-int ModificacionCuentas() {
-	return 0;
-}
-int ModificacionPassword() { return 0; };
-
+int ModificacionCuentas();
+int ModificacionPassword();
+int ModificacionTypeAccount();
 
 int MenuVentas();
 void MenuTicket(int pc,int pv);
@@ -81,7 +79,7 @@ FunctionPointer functionPointers[] = {
 	AltasCuentas,
 	BajasCuentas,
 	ConsultasCuentas,
-	ModificacionesCuentas,//21
+	nullptr,//21 modificacion cuentas
 	MostrarCuentas,
 	RegresoMenu,//23
 	ModificacionCuentas,
@@ -92,7 +90,8 @@ FunctionPointer functionPointers[] = {
 	CortedeCajaVendedor,//28
 	MostrarInventarioID,//29
 	MostrarInventarioAlpha,//30
-	RegresoMenu//31
+	RegresoMenu,//31
+	ModificacionTypeAccount
 
 };
 
@@ -127,12 +126,12 @@ int Automata[][MaxSizeOfOption] = {
 	{10,-2},//18 sub menu de cuentas
 	{10,-2},//19
 	{10,-2},//20
-	{10,-2},//21 modificacion
+	{24,25,32,26,-2},//21 modificacion
 	{10,-2},//22
 	{3,-2},//23 regreso menu anterior 
 	{21,-2},//24 submenu de modificacion
 	{21,-2},//25
-	{20,-2},//26 regreso menu anterior 
+	{10,-2},//26 regreso menu anterior 
 	//inicio de ventas
 	{4,-2},//27
 	{0,-2},//28
@@ -140,6 +139,7 @@ int Automata[][MaxSizeOfOption] = {
 	{9,-2},//29
 	{9,-2},//30
 	{3,-2},//31
+	{21,-2}
 
 };
 char ScreenOptions[][30]{
@@ -175,7 +175,8 @@ char ScreenOptions[][30]{
 
 	{"Por ID"},//29orden de inventario
 	{"Por Producto"},//30
-	{"Regresar al menu anterior"}//31
+	{"Regresar al menu anterior"},//31
+	{"Cambiar Admin estatus"}
 
 
 
@@ -675,21 +676,60 @@ int consultas() {
 
 }
 int Cortecaja() {
+	
 	//std::cout<
 	//print everything
-	int PC=0;
-	int PV=0;
-	IntrusiveNode* ac = new Account();
-	ac = account.head;
-	for (int position = 0; position <account.count; position++) {
-		PC += ((Account*)ac)->pc_caja;
-		PV += ((Account*)ac)->pv_caja;
-		ac = ac->next;
+
+	char ch;
+
+	while (true) {
+		int PC = 0;
+		int PV = 0;
+		system("cls");
+		std::cout << std::string(3, '-') << "Corte Caja" << std::string(3, '-') << std::endl;
+		IntrusiveNode* ac = new Account();
+		ac = account.head;
+		for (int position = 0; position < account.count; position++) {
+			PC += ((Account*)ac)->pc_caja;
+			PV += ((Account*)ac)->pv_caja;
+			ac = ac->next;
+
+		}
+		std::cout << "PC total: " << PC << std::endl;
+		std::cout << "PV total: " << PV << std::endl;
+		//quiere vaciar caja?
+
+		do {
+			std::cout << "quiere Sacar toda la caja? (s/n)" << std::endl;
+			ch = _getch();
+			if (ch == '*') return 0;
+			if (ch != 's' && ch != 'n') {
+				std::cout << "Escibe s o n para proseguir" << std::endl;
+			}
+		} while (ch != 's' && ch != 'n');
+		if (ch == 's') {
+			ac = account.head;
+			for (int position = 0; position < account.count; position++) {
+				((Account*)ac)->pc_caja=0;
+				((Account*)ac)->pv_caja=0;
+				ac = ac->next;
+
+			}
+
+
+		}
 
 	}
-	std::cout << "PV: "<<PV << std::endl;
+
+
+
+
+
 
 	while (_getch() != '*') {
+
+
+
 	}
 	return 0;
 
@@ -769,81 +809,92 @@ int AltasCuentas() {
 	while (true)
 	{
 		char ch;
+		int position;
 		std::string temp_account = "";
 		std::string temp_password = "";
 		std::string validation_password = "";
-		bool isadmin;
-
+		//bool isadmin;
+		std::cout << std::string(3, '-') << "Altas" << std::string(3, '-') << std::endl;
 			std::cout << "Escribe una nueva cuenta" << std::endl;
 		std::cin >> temp_account;
-
-		if (temp_account == ("*"s)) {
-			return 0;
+		position = findAccount(account, temp_account);
+		if (position != -1) {
+			system("cls");
+			std::cout << "Cuenta ya existente" << std::endl;
 		}
-		std::cout << std::endl;
-		//temp password
-		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-		std::cout << "Escriba password" << std::endl;
-		
-		ch = _getch();
-		while (ch != 13) {//character 13 is enter
-			if (ch == '*') {
-				return 0;
-			}
-			if (ch == 8) {
-				temp_password.pop_back();
-				std::cout << ch << " " << ch;
-
-			}
-			else {
-				temp_password.push_back(ch);
-				std::cout << '*';
-
-			}
-			ch = _getch();
-
-
-		}
-		std::cout << std::endl;
-		//Validation
-		std::cout << "Escriba nuevamenta la misma password" << std::endl;
-		ch = _getch();
-		while (ch != 13) {//character 13 is enter
-			if (ch == '*') {
-				return 0;
-			}
-			if (ch == 8) {
-				validation_password.pop_back();
-				std::cout << ch<<" "<<ch;
-
-			}
-			else {
-				validation_password.push_back(ch);
-				std::cout << '*';
-				
-			}
-			ch = _getch();
-			
-
-		}
-		std::cout << std::endl;
-		if (temp_password==validation_password){
-	
-
-			do {
-				std::cout << "Es administrador (s/n)" << std::endl;
-				ch = _getch();
-				if (ch != 's'&& ch != 'n') {
-					std::cout << "Escibe s o n para proseguir" << std::endl;
-				}
-			} while (ch != 's'&& ch != 'n');
-			//(acc.isadmin ? "Si" : "No")
-			account.add(new Account(temp_account, temp_password, (ch == 's' ? true : false)));
-		}
-
 		else {
-			std::cout << "no se pudo crear cuenta" << std::endl;
+			if (temp_account == ("*"s)) {
+				return 0;
+			}
+			std::cout << std::endl;
+			//temp password
+			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+			std::cout << "Escriba password" << std::endl;
+
+			ch = _getch();
+			while (ch != 13) {//character 13 is enter
+				if (ch == '*') {
+					return 0;
+				}
+				if (ch == 8) {
+					temp_password.pop_back();
+					std::cout << ch << " " << ch;
+
+				}
+				else {
+					temp_password.push_back(ch);
+					std::cout << '*';
+
+				}
+				ch = _getch();
+
+
+			}
+			std::cout << std::endl;
+			//Validation
+			std::cout << "Escriba nuevamenta la misma password" << std::endl;
+			ch = _getch();
+			while (ch != 13) {//character 13 is enter
+				if (ch == '*') {
+					return 0;
+				}
+				if (ch == 8) {
+					validation_password.pop_back();
+					std::cout << ch << " " << ch;
+
+				}
+				else {
+					validation_password.push_back(ch);
+					std::cout << '*';
+
+				}
+				ch = _getch();
+
+
+			}
+			std::cout << std::endl;
+			if (temp_password == validation_password) {
+
+
+				do {
+					std::cout << "Es administrador (s/n)" << std::endl;
+					ch = _getch();
+					if (ch != 's' && ch != 'n') {
+						std::cout << "Escibe s o n para proseguir" << std::endl;
+					}
+				} while (ch != 's' && ch != 'n');
+				//(acc.isadmin ? "Si" : "No")
+				account.add(new Account(temp_account, temp_password, (ch == 's' ? true : false)));
+			}
+
+			else {
+				std::cout << "no se pudo crear cuenta" << std::endl;
+			}
+
 		}
+
+
+
 		
 	}
 
@@ -853,7 +904,7 @@ int AltasCuentas() {
 int BajasCuentas() {
 	std::string account_to_search;
 	int position;
-	char ch;
+	//char ch;
 	std::string temp_password = "";
 	while (true) {
 		std::cout << std::string(3, '-') << "Bajas" << std::string(3, '-') << std::endl;
@@ -873,49 +924,48 @@ int BajasCuentas() {
 		}
 		else {
 
-			if (((Account*)account.get(position))->isadmin)
-			{
-				std::cout << "Antes de eliminar escriba el password de la cuenta" << std::endl;
-				ch = _getch();
-				while (ch != 13) {//character 13 is enter
-					if (ch == '*') {
-						return 0;
-					}
-					if (ch == 8) {
-						temp_password.pop_back();
-						std::cout << ch << " " << ch;
-
-					}
-					else {
-						temp_password.push_back(ch);
-						std::cout << '*';
-
-					}
-					ch = _getch();
-
-
-				}
+			//if (((Account*)account.get(position))->isadmin)
+			//{
+				//std::cout << "Antes de eliminar escriba el password de la cuenta" << std::endl;
+				//ch = _getch();
+				//while (ch != 13) {//character 13 is enter
+				//	if (ch == '*') {
+				//		return 0;
+				//	}
+				//	if (ch == 8) {
+				//		temp_password.pop_back();
+				//		std::cout << ch << " " << ch;
+				//	}
+				//	else {
+				//		temp_password.push_back(ch);
+				//		std::cout << '*';
+				//	}
+				//	ch = _getch();
+				//}
 				std::cout << std::endl;
-				if (temp_password == ((Account*)account.get(position))->password) {
+				//if (temp_password == ((Account*)account.get(position))->password) {
+					
+				if (((Account*)account.get(CurrentAccount))->account != ((Account*)account.get(position))->account && ((Account*)account.get(0))->account != ((Account*)account.get(position))->account) {
+
+					
 					system("cls");
 					account.remove(position);
 					std::cout << "Cuenta exitosamente eliminado" << std::endl;
-
-
 				}
+				//}
 				else {
 					system("cls");
 					std::cout << "No se pudo eliminar cuenta" << std::endl;
 				}
 
-			}
-			else {
-				system("cls");
-				account.remove(position);
-				std::cout << "Cuenta exitosamente eliminado" << std::endl;
-				
+			//}
+			//else {
+			//	system("cls");
+			//	account.remove(position);
+			//	std::cout << "Cuenta exitosamente eliminado" << std::endl;
+			//	
 
-			}
+			//}
 
 			
 
@@ -965,13 +1015,188 @@ int MostrarCuentas() {
 
 }
 
+int ModificacionCuentas() {
+	std::string account_to_search;
+	std::string NewName;
+	int position;
+	//char ch;
+	std::string temp_password = "";
+	while (true) {
+		std::cout << std::string(3, '-') << "Modificacion nombre cuenta" << std::string(3, '-') << std::endl;
+		PrintAccountTags();
+		account.display();
+
+		std::cout << "Escribe el nombre de la cuenta a modificar" << std::endl;
+		std::cin >> account_to_search;//get string
+		if (account_to_search == "*") {
+			return 0;
+		}
+
+		position = findAccount(account, account_to_search);
+		if (position == -1) {
+			system("cls");
+			std::cout << "Cuenta no existente" << std::endl;
+		}
+		else {
+				std::cout << std::endl;
+				if (((Account*)account.get(position))->account != ((Account*)account.get(0))->account) {//no quiero permitir que se modifique
+					std::cout << "Escriba el nuevo nombre" << std::endl;
+					std::cin >> NewName;
+					system("cls");
+					((Account*)account.get(position))->account = NewName;
+					std::cout << "Cuenta exitosamente cambiada" << std::endl;
+				}
+				//}
+				else {
+					if (((Account*)account.get(CurrentAccount))->account == ((Account*)account.get(0))->account) {
+						std::cout << "Escriba el nuevo nombre" << std::endl;
+						std::cin >> NewName;
+						system("cls");
+						((Account*)account.get(position))->account = NewName;
+						std::cout << "Cuenta exitosamente cambiada" << std::endl;
+					}
+					else {
+						system("cls");
+						std::cout << "No se puede modificar cuenta" << std::endl;
+					}
+
+				}
+
+		}
+
+		//DeleteNode()
+
+
+
+
+	}
+}
+
+int ModificacionPassword() {
+
+	std::string account_to_search;
+	std::string NewPassword;
+	int position;
+	//char ch;
+	std::string temp_password = "";
+	while (true) {
+		std::cout << std::string(3, '-') << "Modificacion Password cuenta" << std::string(3, '-') << std::endl;
+		PrintAccountTags();
+		account.display();
+
+		std::cout << "Escribe el nombre de la cuenta a modificar" << std::endl;
+		std::cin >> account_to_search;//get string
+		if (account_to_search == "*") {
+			return 0;
+		}
+
+		position = findAccount(account, account_to_search);
+		if (position == -1) {
+			system("cls");
+			std::cout << "Cuenta no existente" << std::endl;
+		}
+		else {
+			std::cout << std::endl;
+			if (((Account*)account.get(position))->account != ((Account*)account.get(0))->account) {//no quiero permitir que se modifique
+				std::cout << "Escriba el nuevo nombre" << std::endl;
+				std::cin >> NewPassword;
+				system("cls");
+				((Account*)account.get(position))->password = NewPassword;
+				std::cout << "Cuenta exitosamente cambiada" << std::endl;
+			}
+			//}
+			else {
+				if (((Account*)account.get(CurrentAccount))->account == ((Account*)account.get(0))->account) {
+					std::cout << "Escriba el nuevo nombre" << std::endl;
+					std::cin >> NewPassword;
+					system("cls");
+					((Account*)account.get(position))->password = NewPassword;
+					std::cout << "Cuenta exitosamente cambiada" << std::endl;
+				}
+				else {
+					system("cls");
+					std::cout << "No se puede modificar cuenta" << std::endl;
+				}
+
+			}
+
+		}
+
+
+	};
+}
+
+int ModificacionTypeAccount() {
+	std::string account_to_search;
+	//std::string NewPassword;
+	char ch;
+	int position;
+	//char ch;
+	std::string temp_password = "";
+	while (true) {
+		std::cout << std::string(3, '-') << "Modificacion Password cuenta" << std::string(3, '-') << std::endl;
+		PrintAccountTags();
+		account.display();
+
+		std::cout << "Escribe el nombre de la cuenta a modificar" << std::endl;
+		std::cin >> account_to_search;//get string
+		if (account_to_search == "*") {
+			return 0;
+		}
+
+		position = findAccount(account, account_to_search);
+		if (position == -1) {
+			system("cls");
+			std::cout << "Cuenta no existente" << std::endl;
+		}
+		else {
+			std::cout << std::endl;
+			if (((Account*)account.get(position))->account != ((Account*)account.get(0))->account) {//no quiero permitir que se modifique
+				do {
+					std::cout << "cambiar a administrador (s/n)" << std::endl;
+					ch = _getch();
+					if (ch != 's' && ch != 'n') {
+						std::cout << "Escibe s o n para proseguir" << std::endl;
+					}
+				} while (ch != 's' && ch != 'n');
+				//std::cin >> NewPassword;
+				system("cls");
+				//((Account*)account.get(position))->password = NewPassword;
+				std::cout << "Cuenta exitosamente cambiada" << std::endl;
+			}
+			//}
+			else {
+				if (((Account*)account.get(CurrentAccount))->account == ((Account*)account.get(0))->account) {					//std::cin >> NewPassword;
+					do {
+						std::cout << "cambiar a administrador (s/n)" << std::endl;
+						ch = _getch();
+						if (ch != 's' && ch != 'n') {
+							std::cout << "Escibe s o n para proseguir" << std::endl;
+						}
+					} while (ch != 's' && ch != 'n');
+
+					system("cls");
+					//((Account*)account.get(position))->password = NewPassword;
+					std::cout << "Cuenta exitosamente cambiada" << std::endl;
+				}
+				else {
+					system("cls");
+					std::cout << "No se puede modificar cuenta" << std::endl;
+				}
+
+			}
+
+		}
+
+
+	};
+
+}
 //modificaciones pendientes de cuentas
 
-
-
 //ventas
-
 int MenuVentas() {
+
 	int number=0;
 	int position;
 	std::string temp_product;
@@ -988,7 +1213,10 @@ int MenuVentas() {
 			MenuTicket(pc_caja, pv_caja);
 			return 0;
 		}
-		if (temp_product == "**") return 1;
+		if (temp_product == "**") {
+			return 1;
+		
+		}
 		position = findProduct(product, temp_product);
 		if (position == -1) {
 			std::cout << "producto no existente" << std::endl;
@@ -1064,7 +1292,7 @@ int MenuVentas() {
 	return 0;
 }
 void MenuTicket(int pc, int pv) {
-
+	system("cls");
 	time_t rawtime=time(0);
 	struct tm timeinfo;
 	localtime_s(&timeinfo, &rawtime);
@@ -1076,7 +1304,7 @@ void MenuTicket(int pc, int pv) {
 	std::cout << "Hora: " << timeinfo.tm_hour << ":" << std::setfill('0') << std::setw(2) << timeinfo.tm_min << ":" << std::setfill('0') << std::setw(2) << timeinfo.tm_sec << std::endl;
 	std::cout << "Fecha: " << timeinfo.tm_mday << "/" << timeinfo.tm_mon + 1 << "/" << timeinfo.tm_year + 1900 << std::endl;
 	std::cout << std::setfill(' ') << std::endl;
-	std::cout << "Vendedor: " << ((Account*)account.get(CurrentAccount))->account << std::endl << std::endl;;
+	std::cout << "Vendedor: " << ((Account*)account.get(CurrentAccount))->account << std::endl << std::endl;
 
 	
 	
@@ -1106,6 +1334,12 @@ void MenuTicket(int pc, int pv) {
 	//pc_caja = 0;
 	return;
 
+}
+void VentasCorteDeCaja(){
+	std::cout << std::string(3, '-') << "Corte de Caja" << std::string(3, '-') << std::endl;
+	std::cout << "Vendedor: " << ((Account*)account.get(CurrentAccount))->account << std::endl << std::endl;
+	//std::cout << "PC: " << ((Account*)account.get(CurrentAccount))->pc_caja << std::endl;
+	std::cout << "Vendio: " << ((Account*)account.get(CurrentAccount))->pv_caja<< std::endl;
 }
 
 //modificar cantidades
