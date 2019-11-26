@@ -1296,8 +1296,8 @@ void MenuTicket(int pc, int pv) {
 	time_t rawtime=time(0);
 	struct tm timeinfo;
 	localtime_s(&timeinfo, &rawtime);
-	std::cout << "		Abarrotes -La Estrella-" << std::endl;
-	std::cout << "		RFC : ALE 730903 BB9" << std::endl;
+	std::cout << "Abarrotes -La Estrella-" << std::endl;
+	std::cout << "RFC : ALE 730903 BB9" << std::endl;
 	std::cout << "        Ticket de venta" << std::endl << std::endl;
 
 
