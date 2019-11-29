@@ -52,6 +52,7 @@ int ModificacionTypeAccount();
 int MenuVentas();
 void MenuTicket(int pc,int pv);
 int CortedeCajaVendedor() { return 0; };
+void VentasCorteDeCaja();
 
 int GetNumber();
 int GetNumberVentas();
@@ -193,26 +194,10 @@ int CurrentAccount = 0;//which account you are in
 
 
 int main() {
-	/*
-	List product;
-	List account;
-	//
 
-
-
-	//products
-	PrintInventoryTags();
-	product.display();
-	product.SaveData();
-	std::cout << std::endl;
-	PrintAccountTags();
-	//accounts
-	account.display();
-	account.SaveData();
-	*/
-	Starting_Products_Accounts(product, account);
+	//Starting_Products_Accounts(product, account);
 	//account.SaveData();
-	//LoadProductData(Productfilename, product);
+	LoadProductData(Productfilename, product);
 	LoadAccountData(Accountfilename, account);
 	MenuOptions();
 	product.SaveData();
@@ -261,7 +246,7 @@ int PrintMenus() {
 
 		if (Automata[state][i] == -2) break;
 		if (Automata[state][i] == -1) {
-			std::cout << i+1 << ". salir juego" << std::endl;
+			std::cout << i+1 << ". salir del sistema " << std::endl;
 		}
 		else {
 			std::cout << i+1 << ". " << ScreenOptions[Automata[state][i]] << std::endl;
@@ -696,11 +681,15 @@ int Cortecaja() {
 
 		}
 		std::cout << "PC total: " << PC << std::endl;
-		std::cout << "PV total: " << PV << std::endl;
+		std::cout << "PV total: " << PV << std::endl << std::endl;
+
+		std::cout << "Utilidad: " << PV-PC << std::endl << std::endl;
+
+
 		//quiere vaciar caja?
 
 		do {
-			std::cout << "quiere Sacar toda la caja? (s/n)" << std::endl;
+			std::cout << "quiere Sacar toda la caja? (s/n)  (* para regresar)" << std::endl;
 			ch = _getch();
 			if (ch == '*') return 0;
 			if (ch != 's' && ch != 'n') {
@@ -1214,6 +1203,7 @@ int MenuVentas() {
 			return 0;
 		}
 		if (temp_product == "**") {
+			VentasCorteDeCaja();
 			return 1;
 		
 		}
@@ -1340,6 +1330,7 @@ void VentasCorteDeCaja(){
 	std::cout << "Vendedor: " << ((Account*)account.get(CurrentAccount))->account << std::endl << std::endl;
 	//std::cout << "PC: " << ((Account*)account.get(CurrentAccount))->pc_caja << std::endl;
 	std::cout << "Vendio: " << ((Account*)account.get(CurrentAccount))->pv_caja<< std::endl;
+	system("pause");
 }
 
 //modificar cantidades

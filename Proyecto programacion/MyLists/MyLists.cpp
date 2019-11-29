@@ -476,6 +476,7 @@ void List::EmptyList()
 	if (count > 0) {
 		IntrusiveNode* node = new Venta();
 		node = head;
+		
 		if (count > 1) {
 			IntrusiveNode* Nextnode = new Venta();
 			Nextnode = node->next;
@@ -483,16 +484,18 @@ void List::EmptyList()
 			for (i = 0; i < count - 1; i++) {
 
 				delete ((Venta*)node);
-				IntrusiveNode* node = new Venta();
+				node = new Venta();
 				//IntrusiveNode* node = Nextnode;
+				node = Nextnode;
 				Nextnode = node->next;
 			}
-			delete ((Venta*)Nextnode);
+			//delete ((Venta*)node);
 		}
 		else {
 			delete ((Venta*)node);
 		}
 		count = 0;
+		head=nullptr;
 
 	}
 
